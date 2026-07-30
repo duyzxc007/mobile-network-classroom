@@ -879,6 +879,7 @@ export default function RfLessonClient() {
         </div>
         <div>
           <Link href="/">← กลับบทเรียน 1G ถึง 5G</Link>
+          <Link href="/5g-nr">บทเรียนถัดไป: โครงสร้าง 5G NR →</Link>
           <a href="#rf-top">ทบทวนด้านบน ↑</a>
         </div>
       </footer>

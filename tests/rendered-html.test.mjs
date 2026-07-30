@@ -53,11 +53,30 @@ test("server-renders the separate RF and modulation lesson", async () => {
   assert.match(html, /แบบทดสอบท้ายบท/);
 });
 
+test("server-renders the separate 5G NR structure lesson", async () => {
+  const response = await render("/5g-nr");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /โครงสร้างและช่องสัญญาณ 5G NR/);
+  assert.match(html, /FR2-2/);
+  assert.match(html, /NSA ใช้ 4G ช่วยตั้งหลัก/);
+  assert.match(html, /Resource Element/);
+  assert.match(html, /Bandwidth Part/);
+  assert.match(html, /PSS \+ SSS \+ PBCH/);
+  assert.match(html, /PDCCH → PDSCH/);
+  assert.match(html, /หยุดภาพ/);
+  assert.match(html, /แบบทดสอบท้ายบท/);
+});
+
 test("removes temporary starter UI and preserves product context", async () => {
-  const [page, rfPage, rfCss, layout, product, css] = await Promise.all([
+  const [page, rfPage, rfCss, nrPage, nrCss, layout, product, css] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/rf-modulation/RfLessonClient.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/rf-modulation/rf-modulation.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/5g-nr/NrLessonClient.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/5g-nr/5g-nr.css", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../PRODUCT.md", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
@@ -75,6 +94,13 @@ test("removes temporary starter UI and preserves product context", async () => {
   assert.match(rfCss, /rf-motion-paused/);
   assert.match(rfCss, /\.rf-header\s*\{[\s\S]*position:\s*sticky/);
   assert.doesNotMatch(rfCss, /\.rf-page\s*\{[\s\S]{0,500}overflow-x:\s*hidden/);
+  assert.match(nrPage, /FR2-2/);
+  assert.match(nrPage, /12 Subcarriers ต่อเนื่องในแกนความถี่/);
+  assert.match(nrPage, /PDCCH/);
+  assert.match(nrPage, /PRACH/);
+  assert.match(nrPage, /prefers-reduced-motion/);
+  assert.match(nrCss, /nr-motion-paused/);
+  assert.match(nrCss, /\.nr-header\s*\{[\s\S]*position:\s*sticky/);
   assert.match(css, /prefers-reduced-motion/);
   assert.match(layout, /lang="th"/);
   assert.match(product, /บุคคลทั่วไปและช่างเทคนิค/);

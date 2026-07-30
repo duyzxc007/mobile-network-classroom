@@ -1173,3 +1173,19 @@ footer a {
     animation-iteration-count: 1 !important;
   }
 }
+
+.footer-links {
+  display: grid;
+  gap: 14px;
+  text-align: right;
+}
+
+.footer-links a:first-child {
+  color: var(--accent);
+}
+
+@media (max-width: 720px) {
+  .footer-links {
+    text-align: left;
+  }
+}

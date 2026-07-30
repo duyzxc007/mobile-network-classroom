@@ -595,7 +595,10 @@ export default function Home() {
           <p>จบบทเรียนที่ 01</p>
           <h2>ตอนนี้คุณเห็นเส้นทางจาก 1G ถึง 5G แล้ว</h2>
         </div>
-        <a href="#top">กลับไปทบทวนด้านบน ↑</a>
+        <div className="footer-links">
+          <a href="/rf-modulation">บทเรียนถัดไป: RF และ Modulation →</a>
+          <a href="#top">กลับไปทบทวนด้านบน ↑</a>
+        </div>
       </footer>
     </main>
   );

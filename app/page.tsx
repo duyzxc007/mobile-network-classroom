@@ -50,6 +50,18 @@ const lessons = [
     level: "งานวัดภาคสนาม",
     visual: "beam",
   },
+  {
+    number: "05",
+    href: "/mobility",
+    eyebrow: "Connection, Registration & Mobility",
+    title: "จากเปิดเครื่องจนถึง Handover",
+    description:
+      "ตามรอยมือถือจาก Cell Search, Selection, PRACH และ Registration ไปจนถึง Measurement Report, Event A3, Cell Reselection และ Handover ขณะเดินทาง",
+    topics: ["Cell Search", "PRACH / RRC", "Registration", "Handover / A3"],
+    time: "35 นาที",
+    level: "การเชื่อมต่อและ Mobility",
+    visual: "mobility",
+  },
 ];
 
 function LessonVisual({ type }: { type: string }) {
@@ -75,6 +87,20 @@ function LessonVisual({ type }: { type: string }) {
       <div className="hub-grid-visual" aria-hidden="true">
         {Array.from({ length: 48 }, (_, index) => <i key={index} className={index % 13 === 0 || index === 28 ? "active" : ""} />)}
         <span>TIME →</span>
+      </div>
+    );
+  }
+
+  if (type === "mobility") {
+    return (
+      <div className="hub-mobility-visual" aria-hidden="true">
+        <div className="hub-mobility-tower tower-left"><i /><b>A</b></div>
+        <div className="hub-mobility-tower tower-right"><i /><b>B</b></div>
+        <div className="hub-mobility-beam beam-left" />
+        <div className="hub-mobility-beam beam-right" />
+        <div className="hub-mobility-road"><i /><i /><i /><i /><i /></div>
+        <div className="hub-mobility-phone"><span /><b>UE</b></div>
+        <p>SEARCH → CONNECT → MOVE</p>
       </div>
     );
   }
@@ -114,7 +140,7 @@ export default function Home() {
           <p>
             หลักสูตรภาษาไทยสำหรับบุคคลทั่วไปและช่างเทคนิค
             เชื่อมทุกเรื่องตั้งแต่วิวัฒนาการ 1G–5G, พื้นฐาน RF, โครงสร้าง 5G NR
-            ไปจนถึงการอ่านคุณภาพสัญญาณในภาคสนาม
+            การอ่านคุณภาพสัญญาณ ไปจนถึงเส้นทางเชื่อมต่อและ Handover
           </p>
           <div className="hub-hero-actions">
             <Link className="hub-primary" href="/network-evolution">
@@ -123,9 +149,9 @@ export default function Home() {
             <a className="hub-secondary" href="#hub-lessons">เลือกบทเรียนเอง ↓</a>
           </div>
           <dl className="hub-course-facts">
-            <div><dt>4</dt><dd>บทเรียนครบชุด</dd></div>
-            <div><dt>≈ 108</dt><dd>นาทีทั้งหมด</dd></div>
-            <div><dt>29</dt><dd>คำถามทบทวน</dd></div>
+            <div><dt>5</dt><dd>บทเรียนครบชุด</dd></div>
+            <div><dt>≈ 143</dt><dd>นาทีทั้งหมด</dd></div>
+            <div><dt>39</dt><dd>คำถามทบทวน</dd></div>
           </dl>
         </div>
 
@@ -143,7 +169,10 @@ export default function Home() {
           <div className="hub-map-step step-four">
             <span>04</span><b>FIELD</b><small>ลงพื้นที่จริง</small>
           </div>
-          <div className="hub-map-signal" aria-hidden="true"><i /><i /><i /></div>
+          <div className="hub-map-step step-five">
+            <span>05</span><b>MOVE</b><small>เชื่อมต่อและย้าย Cell</small>
+          </div>
+          <div className="hub-map-signal" aria-hidden="true"><i /><i /><i /><i /><i /></div>
           <p>ทุกบทเชื่อมกัน แต่สามารถเปิดทบทวนเฉพาะเรื่องได้ทันที</p>
         </div>
       </section>
@@ -154,7 +183,7 @@ export default function Home() {
           <h2>ศัพท์ยากจะง่ายขึ้น<br />เมื่อวางถูกลำดับ</h2>
           <p>
             เราเริ่มจากคำถามว่าเครือข่ายพัฒนามาอย่างไร จากนั้นลงลึกถึงคลื่นและทรัพยากรวิทยุ
-            ก่อนอ่านโครงสร้าง 5G NR และจบด้วยการตีความค่าที่เครื่องมือวัดได้จริง
+            ก่อนอ่านโครงสร้าง 5G NR ตีความค่าที่เครื่องมือวัด และติดตาม UE ตั้งแต่ค้นหา Cell จนถึง Handover
           </p>
         </div>
       </section>
@@ -195,7 +224,7 @@ export default function Home() {
       <section className="hub-path" id="hub-path">
         <div className="hub-path-copy">
           <p className="hub-section-index">ลำดับที่แนะนำ</p>
-          <h2>หนึ่งเส้นทาง<br />สี่ระดับความเข้าใจ</h2>
+          <h2>หนึ่งเส้นทาง<br />ห้าระดับความเข้าใจ</h2>
           <p>เรียนต่อเนื่องสำหรับผู้เริ่มต้น หรือใช้หัวข้อด้านขวาเป็นสารบัญสำหรับทบทวนหน้างาน</p>
         </div>
         <ol className="hub-path-list">
@@ -205,7 +234,7 @@ export default function Home() {
               <div>
                 <small>{lesson.eyebrow}</small>
                 <h3>{lesson.title}</h3>
-                <p>{index === 0 ? "สร้างแผนที่ความคิดของระบบมือถือ" : index === 1 ? "เข้าใจภาษาของคลื่นและสัญลักษณ์" : index === 2 ? "ตามเส้นทางการสื่อสารใน 5G NR" : "เปลี่ยนตัวเลขวัดให้เป็นการวิเคราะห์"}</p>
+                <p>{index === 0 ? "สร้างแผนที่ความคิดของระบบมือถือ" : index === 1 ? "เข้าใจภาษาของคลื่นและสัญลักษณ์" : index === 2 ? "ตามเส้นทางการสื่อสารใน 5G NR" : index === 3 ? "เปลี่ยนตัวเลขวัดให้เป็นการวิเคราะห์" : "ตาม UE จากเปิดเครื่องไปจนถึงเปลี่ยน Cell"}</p>
               </div>
               <Link href={lesson.href}>เรียนบทนี้ <span aria-hidden="true">→</span></Link>
             </li>
@@ -229,7 +258,7 @@ export default function Home() {
       <section className="hub-cta">
         <div>
           <p className="hub-section-index">พร้อมเริ่มหรือยัง?</p>
-          <h2>เริ่มจาก 1G แล้วค่อยเดินไปถึง Beam และ Scanner</h2>
+          <h2>เริ่มจาก 1G แล้วค่อยเดินไปถึงการเชื่อมต่อและ Handover</h2>
         </div>
         <Link className="hub-primary hub-primary-light" href="/network-evolution">
           เปิดบทเรียนที่ 01 <span aria-hidden="true">→</span>

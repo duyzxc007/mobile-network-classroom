@@ -69,8 +69,12 @@ test("removes temporary starter UI and preserves product context", async () => {
   assert.match(rfPage, /SC-FDMA/);
   assert.match(rfPage, /Dynamic Spectrum Sharing/);
   assert.match(rfPage, /prefers-reduced-motion/);
-  assert.match(rfCss, /@keyframes rf-carrier-scan/);
+  assert.match(rfPage, /function SignalCanvas/);
+  assert.match(rfPage, /phaseShift = bit \? 0 : Math\.PI/);
+  assert.match(rfCss, /@keyframes rf-full-sweep/);
   assert.match(rfCss, /rf-motion-paused/);
+  assert.match(rfCss, /\.rf-header\s*\{[\s\S]*position:\s*sticky/);
+  assert.doesNotMatch(rfCss, /\.rf-page\s*\{[\s\S]{0,500}overflow-x:\s*hidden/);
   assert.match(css, /prefers-reduced-motion/);
   assert.match(layout, /lang="th"/);
   assert.match(product, /บุคคลทั่วไปและช่างเทคนิค/);

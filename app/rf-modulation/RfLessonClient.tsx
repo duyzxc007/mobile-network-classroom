@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 
@@ -8,6 +8,15 @@ type Domain = "time" | "frequency";
 type Modulation = "ASK" | "FSK" | "PSK";
 type Constellation = "BPSK" | "QPSK" | "16-QAM" | "64-QAM";
 type AccessMode = "OFDM" | "OFDMA" | "SC-FDMA";
+type WaveMode = "carrier" | Modulation;
+
+const demoBits = [1, 0, 1, 1, 0, 1] as const;
+
+const modulationVisualNotes: Record<Modulation, string> = {
+  ASK: "2-ASK แบบ OOK: บิต 1 เปิดคลื่น บิต 0 ปิดคลื่น ความถี่และเฟสคงเดิม",
+  FSK: "2-FSK: บิต 1 ใช้ความถี่สูงกว่า จึงเห็นจำนวนรอบมากกว่าในช่วงเวลาเท่ากัน",
+  PSK: "BPSK: เมื่อบิตเปลี่ยน คลื่นกลับเฟส 180° แต่ขนาดและความถี่ยังคงเดิม",
+};
 
 function subscribeToReducedMotion(onChange: () => void) {
   const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -23,25 +32,177 @@ function getServerReducedMotionPreference() {
   return false;
 }
 
+function SignalCanvas({
+  mode,
+  isPlaying,
+  className = "",
+}: {
+  mode: WaveMode;
+  isPlaying: boolean;
+  className?: string;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    let animationFrame = 0;
+    let phase = 0;
+
+    function draw(timestamp = 0, scheduleNext = isPlaying) {
+      if (!canvas || !context) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      const width = Math.max(rect.width, 1);
+      const height = Math.max(rect.height, 1);
+      const targetWidth = Math.round(width * pixelRatio);
+      const targetHeight = Math.round(height * pixelRatio);
+
+      if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+      }
+
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      context.clearRect(0, 0, width, height);
+
+      const centerY = height / 2;
+      const horizontalPadding = 10;
+      const plotWidth = width - horizontalPadding * 2;
+
+      context.lineWidth = 1;
+      context.strokeStyle = "oklch(0.975 0.012 88 / 0.22)";
+      context.beginPath();
+      context.moveTo(horizontalPadding, centerY);
+      context.lineTo(width - horizontalPadding, centerY);
+      context.stroke();
+
+      if (mode !== "carrier") {
+        for (let index = 1; index < demoBits.length; index += 1) {
+          const x = horizontalPadding + (plotWidth * index) / demoBits.length;
+          context.setLineDash([4, 6]);
+          context.beginPath();
+          context.moveTo(x, 10);
+          context.lineTo(x, height - 10);
+          context.stroke();
+        }
+        context.setLineDash([]);
+      }
+
+      phase = isPlaying ? timestamp * 0.0032 : 0;
+      context.lineWidth = 3;
+      context.lineJoin = "round";
+      context.lineCap = "round";
+      context.strokeStyle = "oklch(0.82 0.16 85)";
+      context.beginPath();
+
+      const samples = Math.max(Math.round(plotWidth * 1.5), 240);
+      let accumulatedCycles = 0;
+      let previousBitIndex = 0;
+
+      for (let sample = 0; sample <= samples; sample += 1) {
+        const xRatio = sample / samples;
+        const x = horizontalPadding + xRatio * plotWidth;
+        const symbolTime = xRatio * demoBits.length;
+        const bitIndex = Math.min(Math.floor(symbolTime), demoBits.length - 1);
+        const localTime = symbolTime - bitIndex;
+        const bit = demoBits[bitIndex];
+        let amplitude = 0.76;
+        let angle = 2 * Math.PI * 5 * xRatio + phase;
+
+        if (mode !== "carrier") {
+          if (bitIndex !== previousBitIndex) {
+            for (
+              let previous = previousBitIndex;
+              previous < bitIndex;
+              previous += 1
+            ) {
+              accumulatedCycles += demoBits[previous] ? 4 : 2;
+            }
+            previousBitIndex = bitIndex;
+          }
+
+          if (mode === "ASK") {
+            amplitude = bit ? 0.76 : 0;
+            angle = 2 * Math.PI * 3 * localTime + phase;
+          }
+
+          if (mode === "FSK") {
+            const cycles = bit ? 4 : 2;
+            angle =
+              2 * Math.PI * (accumulatedCycles + cycles * localTime) + phase;
+          }
+
+          if (mode === "PSK") {
+            const phaseShift = bit ? 0 : Math.PI;
+            angle = 2 * Math.PI * 3 * localTime + phase + phaseShift;
+          }
+        }
+
+        const y = centerY - Math.sin(angle) * centerY * amplitude;
+        if (sample === 0) context.moveTo(x, y);
+        else context.lineTo(x, y);
+      }
+
+      context.stroke();
+
+      if (scheduleNext && isPlaying) {
+        animationFrame = window.requestAnimationFrame(draw);
+      }
+    }
+
+    const resizeObserver = new ResizeObserver(() =>
+      draw(performance.now(), false),
+    );
+    resizeObserver.observe(canvas);
+    draw(0, isPlaying);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [isPlaying, mode]);
+
+  const label = mode === "carrier"
+    ? "คลื่นพาห์ไซน์เคลื่อนที่ตามเวลา"
+    : `รูปคลื่น ${modulationVisualNotes[mode]}`;
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className={`rf-signal-canvas ${className}`}
+      role="img"
+      aria-label={label}
+    >
+      {label}
+    </canvas>
+  );
+}
+
 const modulationNotes: Record<
   Modulation,
   { change: string; simple: string; strength: string; caution: string }
 > = {
   ASK: {
     change: "Amplitude",
-    simple: "บิต 1 ส่งคลื่นแรงกว่า ส่วนบิต 0 ส่งคลื่นเบาหรือไม่ส่ง",
+    simple: "ภาพสาธิตใช้ On-Off Keying โดยบิต 1 เปิดคลื่น และบิต 0 ปิดคลื่น",
     strength: "วงจรไม่ซับซ้อน เหมาะกับงานควบคุมและสื่อสารระยะใกล้บางชนิด",
     caution: "ไวต่อ Noise และการเปลี่ยนแปลงกำลังสัญญาณ",
   },
   FSK: {
     change: "Frequency",
-    simple: "ใช้ความถี่หนึ่งแทนบิต 0 และอีกความถี่แทนบิต 1",
+    simple: "บิต 1 ใช้ความถี่สูงกว่า จึงมีจำนวนรอบมากกว่าบิต 0 ในเวลาเท่ากัน",
     strength: "ทนต่อการเปลี่ยนแปลงของ Amplitude ได้ดี",
     caution: "มักใช้ Bandwidth มากขึ้นเมื่อแยกความถี่ให้ชัด",
   },
   PSK: {
     change: "Phase",
-    simple: "คงขนาดคลื่นไว้ แต่เปลี่ยนมุมเฟสเพื่อแทนข้อมูล",
+    simple: "ภาพ BPSK คงขนาดและความถี่ไว้ แล้วกลับเฟส 180° เพื่อแยกบิต 0 กับ 1",
     strength: "ใช้กำลังและแถบความถี่ได้มีประสิทธิภาพ",
     caution: "ตัวรับต้องประมาณเฟสให้แม่น",
   },
@@ -253,11 +414,11 @@ export default function RfLessonClient() {
         <div className="rf-hero-lab" aria-label="ภาพสรุปจากสัญญาณสู่ Constellation">
           <div className="rf-scope">
             <span className="rf-scope-label">TIME</span>
-            <div className="rf-wave" aria-hidden="true">
-              {Array.from({ length: 18 }, (_, index) => (
-                <i key={index} style={{ "--i": index } as CSSProperties} />
-              ))}
-            </div>
+            <SignalCanvas
+              mode="carrier"
+              isPlaying={isMotionPlaying}
+              className="rf-wave-canvas"
+            />
           </div>
           <span className="rf-process-arrow" aria-hidden="true">→</span>
           <div className="rf-mini-constellation" aria-hidden="true">
@@ -304,11 +465,18 @@ export default function RfLessonClient() {
           <div className="rf-domain-panel" role="tabpanel">
             <div className={`rf-domain-chart ${domain}`}>
               <span className="rf-y-label">{domain === "time" ? "Amplitude" : "Power"}</span>
-              <div className="rf-chart-content" aria-hidden="true">
+              <div
+                className="rf-chart-content"
+                aria-hidden={domain === "frequency"}
+              >
                 {domain === "time"
-                  ? Array.from({ length: 26 }, (_, index) => (
-                    <i key={index} style={{ "--i": index } as CSSProperties} />
-                  ))
+                  ? (
+                    <SignalCanvas
+                      mode="carrier"
+                      isPlaying={isMotionPlaying}
+                      className="rf-time-canvas"
+                    />
+                  )
                   : [22, 42, 92, 50, 30, 68, 26].map((height, index) => (
                     <i
                       key={index}
@@ -355,13 +523,18 @@ export default function RfLessonClient() {
 
         <div className="rf-modulation-lab">
           <div className="rf-bits" aria-label="ตัวอย่างลำดับบิต">
-            <span>1</span><span>0</span><span>1</span><span>1</span><span>0</span><span>1</span>
+            {demoBits.map((bit, index) => <span key={`${bit}-${index}`}>{bit}</span>)}
           </div>
-          <div className={`rf-modulated-wave ${modulation.toLowerCase()}`} aria-hidden="true">
-            {Array.from({ length: 36 }, (_, index) => (
-              <i key={index} style={{ "--i": index } as CSSProperties} />
-            ))}
+          <div className={`rf-modulated-wave ${modulation.toLowerCase()}`}>
+            <SignalCanvas mode={modulation} isPlaying={isMotionPlaying} />
           </div>
+          <p className="rf-wave-caption">
+            <span aria-hidden="true">●</span>
+            <span>
+              {modulationVisualNotes[modulation]}
+              <small>ภาพเป็นสัญญาณอุดมคติเพื่อให้เห็นหลักการ จึงยังไม่รวม Pulse Shaping, Noise และความหน่วงของช่องสัญญาณ</small>
+            </span>
+          </p>
           <div className="rf-mode-selector" role="tablist" aria-label="เลือก Digital Modulation">
             {(["ASK", "FSK", "PSK"] as Modulation[]).map((mode) => (
               <button

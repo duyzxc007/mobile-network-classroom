@@ -70,13 +70,34 @@ test("server-renders the separate 5G NR structure lesson", async () => {
   assert.match(html, /แบบทดสอบท้ายบท/);
 });
 
+test("server-renders the separate signal quality and field measurement lesson", async () => {
+  const response = await render("/signal-quality");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /สัญญาณแรง/);
+  assert.match(html, /RSRP \/ SS-RSRP/);
+  assert.match(html, /RSRQ/);
+  assert.match(html, /SINR/);
+  assert.match(html, /Massive MIMO/);
+  assert.match(html, /SSB Index/);
+  assert.match(html, /PCI = 0 ถึง 1007/);
+  assert.match(html, /Network Scanner/);
+  assert.match(html, /Test Phone/);
+  assert.match(html, /หยุดภาพ/);
+  assert.match(html, /แบบทดสอบท้ายบท/);
+});
+
 test("removes temporary starter UI and preserves product context", async () => {
-  const [page, rfPage, rfCss, nrPage, nrCss, layout, product, css] = await Promise.all([
+  const [page, rfPage, rfCss, nrPage, nrCss, sqPage, sqCss, layout, product, css] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/rf-modulation/RfLessonClient.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/rf-modulation/rf-modulation.css", import.meta.url), "utf8"),
     readFile(new URL("../app/5g-nr/NrLessonClient.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/5g-nr/5g-nr.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/signal-quality/SignalQualityClient.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/signal-quality/signal-quality.css", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../PRODUCT.md", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
@@ -101,6 +122,11 @@ test("removes temporary starter UI and preserves product context", async () => {
   assert.match(nrPage, /prefers-reduced-motion/);
   assert.match(nrCss, /nr-motion-paused/);
   assert.match(nrCss, /\.nr-header\s*\{[\s\S]*position:\s*sticky/);
+  assert.match(sqPage, /SSB Index/);
+  assert.match(sqPage, /Scanner และโทรศัพท์/);
+  assert.match(sqPage, /prefers-reduced-motion/);
+  assert.match(sqCss, /sq-motion-paused/);
+  assert.match(sqCss, /\.sq-header\s*\{[\s\S]*position:\s*sticky/);
   assert.match(css, /prefers-reduced-motion/);
   assert.match(layout, /lang="th"/);
   assert.match(product, /บุคคลทั่วไปและช่างเทคนิค/);

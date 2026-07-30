@@ -848,6 +848,7 @@ export default function NrLessonClient() {
           <h2>ตอนนี้คุณตามเส้นทางจาก SSB ถึงข้อมูลบน PDSCH และ PUSCH ได้แล้ว</h2>
         </div>
         <div>
+          <Link href="/signal-quality">บทต่อไป: คุณภาพสัญญาณ →</Link>
           <Link href="/rf-modulation">← กลับบทเรียน RF</Link>
           <a href="#nr-top">ทบทวนด้านบน ↑</a>
         </div>

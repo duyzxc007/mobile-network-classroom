@@ -1,604 +1,253 @@
-"use client";
+import Link from "next/link";
+import "./home.css";
 
-import { useMemo, useState } from "react";
-
-type Generation = {
-  id: number;
-  years: string;
-  title: string;
-  subtitle: string;
-  promise: string;
-  radio: string;
-  network: string;
-  services: string;
-  examples: string;
-  takeaway: string;
-};
-
-const generations: Generation[] = [
+const lessons = [
   {
-    id: 1,
-    years: "ราว ค.ศ. 1980",
-    title: "1G",
-    subtitle: "โทรศัพท์ไร้สายแบบแอนะล็อก",
-    promise: "ทำให้การโทรศัพท์เคลื่อนที่เกิดขึ้นจริงในวงกว้าง",
-    radio: "เสียงแอนะล็อก และการแบ่งช่องความถี่แบบ FDMA",
-    network: "เครือข่ายแยกตามประเทศหรือภูมิภาค ความเข้ากันได้ยังต่ำ",
-    services: "โทรศัพท์เสียงเป็นหลัก แทบไม่มีบริการข้อมูล",
-    examples: "AMPS, NMT, TACS",
-    takeaway:
-      "1G พิสูจน์ว่ามือถือใช้งานได้จริง แต่ความจุต่ำ คุณภาพเสียงแปรผัน และป้องกันการดักฟังได้ไม่ดี",
+    number: "01",
+    href: "/network-evolution",
+    eyebrow: "Mobile Network Evolution",
+    title: "พื้นฐานเครือข่าย 1G–5G",
+    description:
+      "ตามวิวัฒนาการจากเสียงแอนะล็อก ผ่าน GSM, CDMA, LTE และ LTE-Advanced จนถึง 5G NR พร้อมเข้าใจบทบาทของ 3GPP และ ITU",
+    topics: ["1G–5G", "GSM / CDMA", "LTE-A", "3GPP / ITU"],
+    time: "20 นาที",
+    level: "เริ่มจากบทนี้",
+    visual: "generation",
   },
   {
-    id: 2,
-    years: "ราว ค.ศ. 1990",
-    title: "2G",
-    subtitle: "โลกดิจิทัล GSM และ CDMA",
-    promise: "เพิ่มจำนวนผู้ใช้ คุณภาพเสียง ความปลอดภัย และเปิดทางให้ SMS",
-    radio: "GSM ใช้ FDMA/TDMA ส่วน IS-95 ใช้ CDMA แบบ Spread Spectrum",
-    network: "ระบบดิจิทัล มีการยืนยันตัวตนและบริหารผู้ใช้เป็นระบบมากขึ้น",
-    services: "เสียงดิจิทัล, SMS และข้อมูลความเร็วต่ำผ่าน GPRS/EDGE",
-    examples: "GSM, IS-95 cdmaOne, GPRS, EDGE",
-    takeaway:
-      "2G ไม่ได้มีเส้นทางเดียว โลกแบ่งเป็นตระกูล GSM และ CDMA ก่อนจะค่อย ๆ รวมทิศทางเข้าหาเครือข่ายข้อมูล",
+    number: "02",
+    href: "/rf-modulation",
+    eyebrow: "RF & Digital Modulation",
+    title: "คลื่น การมอดูเลต และการแบ่งทรัพยากร",
+    description:
+      "เห็นภาพ Time/Frequency Domain, Carrier, PSK, QPSK, QAM และ Constellation ก่อนเชื่อมไปยัง FDD/TDD, OFDM, OFDMA และ SC-FDMA",
+    topics: ["Waveform", "QPSK / QAM", "OFDM", "FDD / TDD"],
+    time: "30 นาที",
+    level: "พื้นฐาน RF",
+    visual: "wave",
   },
   {
-    id: 3,
-    years: "ราว ค.ศ. 2000",
-    title: "3G",
-    subtitle: "อินเทอร์เน็ตเริ่มอยู่ในโทรศัพท์",
-    promise: "รองรับข้อมูลเคลื่อนที่จริงจัง พร้อมเสียงและวิดีโอคอล",
-    radio: "UMTS/WCDMA และ cdma2000 เป็นเทคโนโลยีหลักในกลุ่ม IMT-2000",
-    network: "ผสมโลก Circuit-switched สำหรับเสียง กับ Packet-switched สำหรับข้อมูล",
-    services: "เว็บบนมือถือ, อีเมล, วิดีโอคอล และ Mobile Broadband ยุคแรก",
-    examples: "UMTS, WCDMA, HSPA/HSPA+, cdma2000, EV-DO",
-    takeaway:
-      "3G เปลี่ยนมือถือจากเครื่องโทรศัพท์ให้กลายเป็นอุปกรณ์เชื่อมต่ออินเทอร์เน็ต แต่โครงข่ายยังซับซ้อนเพราะต้องรองรับทั้งเสียงแบบเดิมและข้อมูล",
+    number: "03",
+    href: "/5g-nr",
+    eyebrow: "5G NR Air Interface",
+    title: "โครงสร้างและช่องสัญญาณ 5G NR",
+    description:
+      "ซูมจาก FR1/FR2 และ NSA/SA เข้าไปใน Numerology, Resource Grid, RB/RE, Bandwidth Part และเส้นทางจาก SSB ถึง PDSCH/PUSCH",
+    topics: ["FR1 / FR2", "Resource Grid", "SSB", "Channel / Signal"],
+    time: "30 นาที",
+    level: "โครงสร้าง 5G",
+    visual: "grid",
   },
   {
-    id: 4,
-    years: "ราว ค.ศ. 2010",
-    title: "4G",
-    subtitle: "บรอดแบนด์มือถือแบบ All-IP",
-    promise: "ทำให้วิดีโอ แอป และบริการข้อมูลตอบสนองได้ใกล้เคียงอินเทอร์เน็ตบ้าน",
-    radio: "LTE ใช้ OFDMA ใน Downlink และ SC-FDMA ใน Uplink",
-    network: "Evolved Packet Core หรือ EPC เน้นการรับส่งแบบ Packet และ IP",
-    services: "สตรีมวิดีโอ, แอปเรียลไทม์, VoLTE และ Mobile Broadband ความเร็วสูง",
-    examples: "LTE Release 8, LTE-Advanced Release 10 และหลังจากนั้น",
-    takeaway:
-      "LTE วางฐาน 4G ส่วน LTE-Advanced เพิ่ม Carrier Aggregation, MIMO และความสามารถที่ผ่านเกณฑ์ IMT-Advanced ของ ITU",
-  },
-  {
-    id: 5,
-    years: "ราว ค.ศ. 2020",
-    title: "5G",
-    subtitle: "เครือข่ายสำหรับคน เครื่องจักร และอุตสาหกรรม",
-    promise: "รองรับความต้องการที่แตกต่างกันมาก ทั้งความเร็วสูง ความหน่วงต่ำ และอุปกรณ์จำนวนมาก",
-    radio: "5G NR ใช้ OFDM ที่ยืดหยุ่น รองรับหลายย่านความถี่และ Beamforming",
-    network: "ทำงานได้ทั้ง NSA ที่พึ่ง LTE และ SA ที่ใช้ 5G Core เต็มรูปแบบ",
-    services: "eMBB, URLLC, mMTC, Network Slicing, Edge และบริการอุตสาหกรรม",
-    examples: "3GPP Release 15 เป็นต้นมา, 5G NR, 5GC",
-    takeaway:
-      "5G ไม่ใช่แค่ 4G ที่เร็วขึ้น แต่เป็นระบบที่ออกแบบให้ปรับเครือข่ายตามงาน ตั้งแต่มือถือทั่วไปจนถึงโรงงานและระบบวิกฤต",
+    number: "04",
+    href: "/signal-quality",
+    eyebrow: "Signal Quality & Field Work",
+    title: "คุณภาพสัญญาณ Beamforming และการวัดภาคสนาม",
+    description:
+      "อ่าน RSRP, RSRQ และ SINR ให้เป็น เข้าใจ SISO, MIMO, Massive MIMO, SSB Index กับ PCI และเลือก Scanner หรือโทรศัพท์ให้ตรงคำถาม",
+    topics: ["RSRP / RSRQ", "SINR", "MIMO / Beam", "Scanner / Phone"],
+    time: "28 นาที",
+    level: "งานวัดภาคสนาม",
+    visual: "beam",
   },
 ];
 
-const quiz = [
-  {
-    question: "ข้อใดอธิบายความเปลี่ยนแปลงสำคัญจาก 1G ไป 2G ได้ดีที่สุด?",
-    choices: [
-      "เปลี่ยนจากเสียงแอนะล็อกเป็นระบบดิจิทัล",
-      "เปลี่ยนจาก LTE เป็น 5G NR",
-      "เริ่มใช้ Network Slicing",
-    ],
-    answer: 0,
-    explain: "2G ทำให้การรับส่งเสียงและการควบคุมระบบเปลี่ยนเป็นดิจิทัล พร้อมเปิดทางให้ SMS",
-  },
-  {
-    question: "GSM และ IS-95 แตกต่างกันเด่นที่สุดในเรื่องใด?",
-    choices: [
-      "GSM ไม่มีบริการเสียง",
-      "GSM ใช้แนวทาง TDMA ส่วน IS-95 ใช้ CDMA",
-      "IS-95 เป็นมาตรฐาน 5G",
-    ],
-    answer: 1,
-    explain: "GSM แบ่งผู้ใช้ด้วยช่องความถี่และช่วงเวลา ขณะที่ IS-95 ใช้รหัสแยกผู้ใช้ในย่านความถี่ร่วมกัน",
-  },
-  {
-    question: "เทคโนโลยีใดได้รับการยอมรับว่าเป็น IMT-Advanced?",
-    choices: ["GSM", "LTE Release 8 ทุกกรณี", "LTE-Advanced"],
-    answer: 2,
-    explain: "ITU ระบุ LTE-Advanced เป็นหนึ่งในเทคโนโลยีที่ผ่านเกณฑ์ IMT-Advanced",
-  },
-  {
-    question: "Release แรกที่วางมาตรฐาน 5G NR และ 5G System คือข้อใด?",
-    choices: ["3GPP Release 8", "3GPP Release 10", "3GPP Release 15"],
-    answer: 2,
-    explain: "Release 15 เป็นชุดมาตรฐาน 5G ระยะแรก ครอบคลุมทั้ง NSA และ SA",
-  },
-  {
-    question: "ข้อใดอธิบายบทบาท 3GPP และ ITU ได้ถูกต้อง?",
-    choices: [
-      "3GPP ออกใบอนุญาตคลื่นความถี่ให้ทุกประเทศ",
-      "3GPP จัดทำสเปกระบบ ส่วน ITU วางกรอบ IMT และกระบวนการประเมินระดับโลก",
-      "ITU เป็นผู้ผลิตสถานีฐาน 5G",
-    ],
-    answer: 1,
-    explain: "ทั้งสององค์กรทำงานเชื่อมโยงกัน แต่มีบทบาทต่างกัน และหน่วยงานกำกับของแต่ละประเทศยังเป็นผู้จัดสรรคลื่นในประเทศ",
-  },
-];
+function LessonVisual({ type }: { type: string }) {
+  if (type === "generation") {
+    return (
+      <div className="hub-generation-visual" aria-hidden="true">
+        {["1G", "2G", "3G", "4G", "5G"].map((item) => <i key={item}><span>{item}</span></i>)}
+      </div>
+    );
+  }
 
-const glossary = [
-  ["FDMA", "แบ่งทรัพยากรด้วยช่องความถี่ ผู้ใช้แต่ละรายอยู่คนละช่วงความถี่"],
-  ["TDMA", "แบ่งการใช้งานด้วยช่วงเวลา ผู้ใช้ผลัดกันส่งข้อมูลบนช่องสัญญาณ"],
-  ["CDMA", "ให้ผู้ใช้หลายรายใช้เวลาและความถี่ร่วมกัน แล้วแยกด้วยรหัส"],
-  ["OFDMA", "แบ่งช่องสัญญาณเป็น Subcarrier จำนวนมากและจัดสรรให้ผู้ใช้ได้ยืดหยุ่น"],
-  ["Core Network", "ส่วนกลางของเครือข่ายที่จัดการผู้ใช้ การเคลื่อนที่ บริการ และเส้นทางข้อมูล"],
-  ["RAN", "Radio Access Network ส่วนที่เชื่อมอุปกรณ์ผู้ใช้กับ Core Network ผ่านสถานีฐาน"],
-  ["NSA", "5G แบบ Non-Standalone ใช้ 5G NR ร่วมกับโครงสร้าง LTE/EPC"],
-  ["SA", "5G แบบ Standalone ใช้ 5G NR และ 5G Core เต็มรูปแบบ"],
-];
+  if (type === "wave") {
+    return (
+      <div className="hub-wave-visual" aria-hidden="true">
+        <i /><i /><i /><i /><i /><i /><i /><i />
+        <span>I</span><span>Q</span>
+      </div>
+    );
+  }
 
-export default function Home() {
-  const [activeGeneration, setActiveGeneration] = useState(5);
-  const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [submitted, setSubmitted] = useState(false);
-
-  const current =
-    generations.find((generation) => generation.id === activeGeneration) ??
-    generations[4];
-
-  const score = useMemo(
-    () =>
-      quiz.reduce(
-        (total, item, index) =>
-          total + (answers[index] === item.answer ? 1 : 0),
-        0,
-      ),
-    [answers],
-  );
-
-  function resetQuiz() {
-    setAnswers({});
-    setSubmitted(false);
+  if (type === "grid") {
+    return (
+      <div className="hub-grid-visual" aria-hidden="true">
+        {Array.from({ length: 48 }, (_, index) => <i key={index} className={index % 13 === 0 || index === 28 ? "active" : ""} />)}
+        <span>TIME →</span>
+      </div>
+    );
   }
 
   return (
-    <main>
-      <header className="site-header">
-        <a className="brand" href="#top" aria-label="กลับสู่ด้านบน">
-          <span className="brand-mark" aria-hidden="true">
-            RF
-          </span>
+    <div className="hub-beam-visual" aria-hidden="true">
+      <div>{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div>
+      <span /><span /><span />
+      <b>UE</b>
+    </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <main className="hub-page">
+      <header className="hub-header">
+        <a className="hub-brand" href="#hub-top" aria-label="กลับสู่ด้านบน">
+          <span aria-hidden="true">RF</span>
           <span>
             <strong>Mobile Network Classroom</strong>
-            <small>บทเรียนที่ 01</small>
+            <small>ศูนย์รวมบทเรียนเครือข่ายมือถือ</small>
           </span>
         </a>
-        <nav aria-label="หัวข้อในบทเรียน">
-          <a href="#timeline">เส้นเวลา</a>
-          <a href="#standards">มาตรฐาน</a>
-          <a href="#quiz">แบบทดสอบ</a>
+        <nav aria-label="เมนูหน้าหลัก">
+          <a href="#hub-lessons">บทเรียนทั้งหมด</a>
+          <a href="#hub-path">ลำดับการเรียน</a>
+          <a href="#hub-principles">แนวทางของเรา</a>
         </nav>
+        <Link className="hub-header-action" href="/network-evolution">เริ่มบทที่ 01</Link>
       </header>
 
-      <section className="hero" id="top">
-        <div className="hero-copy">
-          <p className="eyebrow">พื้นฐานเครือข่ายมือถือ 1G ถึง 5G</p>
-          <h1>จากเสียงแอนะล็อก<br />สู่เครือข่ายอัจฉริยะ</h1>
-          <p className="hero-lead">
-            เรียนรู้ว่า GSM, CDMA, LTE, LTE-Advanced และ 5G NR
-            เชื่อมต่อกันอย่างไร พร้อมเข้าใจบทบาทของ 3GPP และ ITU
-            โดยไม่ต้องเริ่มจากศัพท์เทคนิคยาก ๆ
-          </p>
-          <div className="hero-actions">
-            <a className="primary-action" href="#timeline">
-              เริ่มเรียน
-              <span aria-hidden="true">↓</span>
-            </a>
-            <span className="reading-time">ใช้เวลาประมาณ 20 นาที</span>
-          </div>
-        </div>
-
-        <div className="signal-story" aria-label="ภาพรวมวิวัฒนาการเครือข่าย">
-          <div className="signal-rings" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </div>
-          <div className="generation-stack">
-            {generations.map((generation) => (
-              <span key={generation.id}>
-                <b>{generation.title}</b>
-                <small>{generation.years.replace("ราว ", "")}</small>
-              </span>
-            ))}
-          </div>
-          <p>ทุกยุคแก้ข้อจำกัดของยุคก่อน และเพิ่มชนิดบริการที่เครือข่ายรองรับ</p>
-        </div>
-      </section>
-
-      <section className="learning-outcomes" aria-labelledby="outcome-title">
-        <p className="section-index">ก่อนเริ่มเรียน</p>
-        <div>
-          <h2 id="outcome-title">เมื่อจบบทนี้ คุณจะตอบได้ 4 เรื่อง</h2>
-          <ol>
-            <li><span>01</span>แต่ละ Generation เปลี่ยนอะไรจากยุคก่อน</li>
-            <li><span>02</span>GSM และ CDMA ใช้แนวคิดแบ่งผู้ใช้อย่างไร</li>
-            <li><span>03</span>LTE ต่างจาก LTE-Advanced และ 5G NR ตรงไหน</li>
-            <li><span>04</span>3GPP กับ ITU ทำหน้าที่ต่างกันอย่างไร</li>
-          </ol>
-        </div>
-      </section>
-
-      <section className="lesson-section timeline-section" id="timeline">
-        <div className="section-heading">
-          <p className="section-index">01 / วิวัฒนาการ</p>
-          <h2>ห้ารุ่นใหญ่ ไม่ได้เปลี่ยนแค่ความเร็ว</h2>
+      <section className="hub-hero" id="hub-top">
+        <div className="hub-hero-copy">
+          <p className="hub-kicker">เรียนรู้จากภาพใหญ่ ไปจนถึงการวัดจริง</p>
+          <h1>เข้าใจเครือข่ายมือถือ<br />อย่างเป็นระบบ</h1>
           <p>
-            เลือกแต่ละยุคเพื่อดูว่า Radio, Network และบริการเปลี่ยนไปอย่างไร
+            หลักสูตรภาษาไทยสำหรับบุคคลทั่วไปและช่างเทคนิค
+            เชื่อมทุกเรื่องตั้งแต่วิวัฒนาการ 1G–5G, พื้นฐาน RF, โครงสร้าง 5G NR
+            ไปจนถึงการอ่านคุณภาพสัญญาณในภาคสนาม
           </p>
-        </div>
-
-        <div
-          className="generation-tabs"
-          role="tablist"
-          aria-label="เลือกรุ่นเครือข่าย"
-        >
-          {generations.map((generation) => (
-            <button
-              key={generation.id}
-              type="button"
-              role="tab"
-              aria-selected={activeGeneration === generation.id}
-              aria-controls="generation-panel"
-              id={`generation-tab-${generation.id}`}
-              className={activeGeneration === generation.id ? "active" : ""}
-              onClick={() => setActiveGeneration(generation.id)}
-            >
-              <strong>{generation.title}</strong>
-              <small>{generation.years}</small>
-            </button>
-          ))}
-        </div>
-
-        <article
-          className="generation-panel"
-          id="generation-panel"
-          role="tabpanel"
-          aria-labelledby={`generation-tab-${current.id}`}
-        >
-          <div className="generation-intro">
-            <span className="giant-number">{current.id}</span>
-            <div>
-              <p>{current.years}</p>
-              <h3>{current.subtitle}</h3>
-              <strong>{current.promise}</strong>
-            </div>
+          <div className="hub-hero-actions">
+            <Link className="hub-primary" href="/network-evolution">
+              เริ่มเรียนตามลำดับ <span aria-hidden="true">→</span>
+            </Link>
+            <a className="hub-secondary" href="#hub-lessons">เลือกบทเรียนเอง ↓</a>
           </div>
-          <dl>
-            <div>
-              <dt>Radio Access</dt>
-              <dd>{current.radio}</dd>
-            </div>
-            <div>
-              <dt>โครงสร้างเครือข่าย</dt>
-              <dd>{current.network}</dd>
-            </div>
-            <div>
-              <dt>บริการที่เด่น</dt>
-              <dd>{current.services}</dd>
-            </div>
-            <div>
-              <dt>ตัวอย่างเทคโนโลยี</dt>
-              <dd>{current.examples}</dd>
-            </div>
+          <dl className="hub-course-facts">
+            <div><dt>4</dt><dd>บทเรียนครบชุด</dd></div>
+            <div><dt>≈ 108</dt><dd>นาทีทั้งหมด</dd></div>
+            <div><dt>29</dt><dd>คำถามทบทวน</dd></div>
           </dl>
-          <p className="takeaway">
-            <span>จำง่าย ๆ</span>
-            {current.takeaway}
-          </p>
-        </article>
-      </section>
-
-      <section className="lesson-section split-history">
-        <div className="section-heading">
-          <p className="section-index">02 / สองเส้นทางของ 2G และ 3G</p>
-          <h2>GSM กับ CDMA คือคนละวิธีจัดระเบียบผู้ใช้</h2>
-          <p>
-            ทั้งสองตระกูลแก้ปัญหาเดียวกัน คือทำให้ผู้ใช้จำนวนมากแบ่งทรัพยากรวิทยุร่วมกันได้
-          </p>
         </div>
 
-        <div className="comparison">
-          <article>
-            <p className="tech-label">GSM FAMILY</p>
-            <h3>แบ่งด้วยความถี่และเวลา</h3>
-            <div className="slot-demo" aria-label="ตัวอย่างการแบ่งช่องเวลา">
-              <span>A</span><span>B</span><span>C</span><span>A</span><span>B</span><span>C</span>
-            </div>
-            <p>
-              GSM วางผู้ใช้ลงในช่องความถี่และ Time Slot ที่กำหนด
-              มี SIM เป็นหัวใจของตัวตนผู้ใช้ และพัฒนาต่อผ่าน GPRS, EDGE,
-              UMTS/WCDMA และ HSPA
-            </p>
-            <p className="path">GSM → GPRS/EDGE → UMTS/HSPA → LTE</p>
-          </article>
-
-          <article>
-            <p className="tech-label">CDMA FAMILY</p>
-            <h3>ใช้ความถี่ร่วมกัน แยกด้วยรหัส</h3>
-            <div className="code-demo" aria-label="ตัวอย่างรหัสของผู้ใช้">
-              <span>+ − + +</span>
-              <span>− + + −</span>
-              <span>+ + − +</span>
-            </div>
-            <p>
-              IS-95 หรือ cdmaOne ใช้ Spread Spectrum
-              ให้ผู้ใช้หลายรายอยู่ในย่านความถี่เดียวกันและแยกกันด้วยรหัส
-              จากนั้นพัฒนาไปสู่ cdma2000 และ EV-DO
-            </p>
-            <p className="path">IS-95 → cdma2000/EV-DO → LTE</p>
-          </article>
-        </div>
-
-        <div className="convergence">
-          <span>จุดสำคัญ</span>
-          <p>
-            LTE ไม่ได้ใช้ Radio Access แบบ GSM หรือ CDMA เดิม
-            แต่เป็นจุดที่อุตสาหกรรมส่วนใหญ่รวมทิศทางเข้าสู่ระบบ OFDMA และโครงข่ายแบบ All-IP
-          </p>
-        </div>
-      </section>
-
-      <section className="lesson-section lte-section">
-        <div className="section-heading">
-          <p className="section-index">03 / LTE สู่ 5G NR</p>
-          <h2>จากเครือข่ายข้อมูลเร็ว สู่เครือข่ายที่ปรับตามงาน</h2>
-        </div>
-
-        <div className="evolution-steps">
-          <article>
-            <span className="step-number">A</span>
-            <div>
-              <p className="tech-label">LTE · RELEASE 8</p>
-              <h3>วางฐานบรอดแบนด์แบบ All-IP</h3>
-              <p>
-                LTE ลดความซับซ้อนของ Radio Access และ Core Network
-                เพื่อเพิ่มความเร็ว ความจุ และลดความหน่วง โดยใช้ E-UTRA ร่วมกับ EPC
-              </p>
-            </div>
-          </article>
-          <article>
-            <span className="step-number">B</span>
-            <div>
-              <p className="tech-label">LTE-ADVANCED · RELEASE 10+</p>
-              <h3>รวมคลื่นและเสาอากาศให้ทำงานร่วมกัน</h3>
-              <p>
-                Carrier Aggregation รวมหลาย Carrier, MIMO เพิ่ม Spatial Stream
-                และการจัดการ Interference ช่วยเพิ่มประสิทธิภาพทั้งระบบ
-              </p>
-            </div>
-          </article>
-          <article>
-            <span className="step-number">C</span>
-            <div>
-              <p className="tech-label">5G NR + 5GC · RELEASE 15+</p>
-              <h3>แยกความสามารถตาม Use Case</h3>
-              <p>
-                5G รองรับ eMBB สำหรับข้อมูลสูง, URLLC สำหรับงานที่ต้องเชื่อถือได้และหน่วงต่ำ
-                และ mMTC สำหรับอุปกรณ์จำนวนมาก
-              </p>
-            </div>
-          </article>
-        </div>
-
-        <aside className="myth-check">
-          <div>
-            <p className="section-index">คำที่มักสับสน</p>
-            <h3>LTE เท่ากับ 4G เลยหรือไม่?</h3>
+        <div className="hub-hero-map" role="img" aria-label="เส้นทางเรียนจาก 1G ถึงการวัดคุณภาพสัญญาณภาคสนาม">
+          <div className="hub-map-axis" aria-hidden="true" />
+          <div className="hub-map-step step-one">
+            <span>01</span><b>1G–5G</b><small>เห็นภาพใหญ่</small>
           </div>
-          <p>
-            ในตลาด คำว่า 4G ถูกใช้กับ LTE และเทคโนโลยีที่พัฒนาจาก 3G หลายรูปแบบ
-            แต่ ITU ระบุชัดว่า LTE-Advanced เป็นเทคโนโลยีที่ได้รับสถานะ IMT-Advanced
-            จึงควรแยกคำเรียกทางการตลาดออกจากกระบวนการรับรองมาตรฐาน
-          </p>
-        </aside>
-      </section>
-
-      <section className="lesson-section standards-section" id="standards">
-        <div className="section-heading">
-          <p className="section-index">04 / ใครกำหนดมาตรฐาน</p>
-          <h2>3GPP เขียนสเปก ส่วน ITU วางกรอบระดับโลก</h2>
-          <p>
-            องค์กรทั้งสองเชื่อมโยงกัน แต่ไม่ได้ทำหน้าที่เดียวกัน
-          </p>
-        </div>
-
-        <div className="standards-map">
-          <article>
-            <div className="org-heading">
-              <span>3GPP</span>
-              <small>Partnership Project</small>
-            </div>
-            <h3>ทำให้ระบบของหลายบริษัทคุยกันรู้เรื่อง</h3>
-            <ul>
-              <li>จัดทำ Technical Specification ครบทั้ง Radio, Core และบริการ</li>
-              <li>รวมงานเป็น Release เช่น Release 8, 10 และ 15</li>
-              <li>TSG RAN ดู Radio, SA ดูระบบและบริการ, CT ดู Core และ Terminal</li>
-              <li>ชุดเลข 36 ใช้กับ LTE และชุดเลข 38 ใช้กับ 5G NR</li>
-            </ul>
-          </article>
-
-          <div className="standards-link" aria-hidden="true">
-            <span>เสนอเทคโนโลยี</span>
-            <b>↔</b>
-            <span>เกณฑ์และการประเมิน</span>
+          <div className="hub-map-step step-two">
+            <span>02</span><b>RF</b><small>เข้าใจคลื่น</small>
           </div>
-
-          <article>
-            <div className="org-heading">
-              <span>ITU</span>
-              <small>United Nations Agency</small>
-            </div>
-            <h3>สร้างกรอบ IMT และประสานงานคลื่นทั่วโลก</h3>
-            <ul>
-              <li>กำหนด Vision, Requirement และวิธีประเมินเทคโนโลยี IMT</li>
-              <li>IMT-2000 เชื่อมโยงกับ 3G, IMT-Advanced กับ 4G และ IMT-2020 กับ 5G</li>
-              <li>ประสานการใช้คลื่นระหว่างประเทศผ่านกระบวนการ ITU-R และ WRC</li>
-              <li>ไม่ได้เป็นผู้ผลิตอุปกรณ์หรือผู้ให้บริการเครือข่าย</li>
-            </ul>
-          </article>
-        </div>
-
-        <div className="release-strip" aria-label="Release สำคัญ">
-          <div><b>Rel-8</b><span>LTE และ EPC</span></div>
-          <div><b>Rel-10</b><span>LTE-Advanced</span></div>
-          <div><b>Rel-15</b><span>5G NR และ 5GS ระยะแรก</span></div>
-          <div><b>Rel-18</b><span>เริ่มยุค 5G-Advanced</span></div>
+          <div className="hub-map-step step-three">
+            <span>03</span><b>5G NR</b><small>อ่านโครงสร้าง</small>
+          </div>
+          <div className="hub-map-step step-four">
+            <span>04</span><b>FIELD</b><small>ลงพื้นที่จริง</small>
+          </div>
+          <div className="hub-map-signal" aria-hidden="true"><i /><i /><i /></div>
+          <p>ทุกบทเชื่อมกัน แต่สามารถเปิดทบทวนเฉพาะเรื่องได้ทันที</p>
         </div>
       </section>
 
-      <section className="lesson-section glossary-section">
-        <div className="section-heading">
-          <p className="section-index">05 / คำศัพท์จำเป็น</p>
-          <h2>เปิดดูเมื่อเจอคำย่อ</h2>
+      <section className="hub-intro">
+        <p className="hub-section-index">ภาพรวมหลักสูตร</p>
+        <div>
+          <h2>ศัพท์ยากจะง่ายขึ้น<br />เมื่อวางถูกลำดับ</h2>
+          <p>
+            เราเริ่มจากคำถามว่าเครือข่ายพัฒนามาอย่างไร จากนั้นลงลึกถึงคลื่นและทรัพยากรวิทยุ
+            ก่อนอ่านโครงสร้าง 5G NR และจบด้วยการตีความค่าที่เครื่องมือวัดได้จริง
+          </p>
         </div>
-        <div className="glossary">
-          {glossary.map(([term, description]) => (
-            <details key={term}>
-              <summary>{term}<span aria-hidden="true">＋</span></summary>
-              <p>{description}</p>
-            </details>
+      </section>
+
+      <section className="hub-lessons" id="hub-lessons">
+        <div className="hub-section-heading">
+          <p className="hub-section-index">บทเรียนทั้งหมด</p>
+          <h2>เลือกเริ่มจากพื้นฐาน<br />หรือเข้าหัวข้อที่ต้องใช้</h2>
+        </div>
+
+        <div className="hub-lesson-grid">
+          {lessons.map((lesson) => (
+            <article className={`hub-lesson hub-lesson-${lesson.number}`} key={lesson.number}>
+              <div className="hub-lesson-topline">
+                <span>บทที่ {lesson.number}</span>
+                <span>{lesson.time}</span>
+              </div>
+              <div className="hub-lesson-copy">
+                <p>{lesson.eyebrow}</p>
+                <h3>{lesson.title}</h3>
+                <div className="hub-topic-list">
+                  {lesson.topics.map((topic) => <span key={topic}>{topic}</span>)}
+                </div>
+                <p>{lesson.description}</p>
+              </div>
+              <LessonVisual type={lesson.visual} />
+              <div className="hub-lesson-footer">
+                <span>{lesson.level}</span>
+                <Link href={lesson.href} aria-label={`เปิดบทเรียน ${lesson.title}`}>
+                  เปิดบทเรียน <b aria-hidden="true">↗</b>
+                </Link>
+              </div>
+            </article>
           ))}
         </div>
       </section>
 
-      <section className="lesson-section quiz-section" id="quiz">
-        <div className="section-heading">
-          <p className="section-index">06 / ตรวจความเข้าใจ</p>
-          <h2>แบบทดสอบท้ายบท</h2>
-          <p>เลือกคำตอบให้ครบ แล้วกดตรวจคำตอบ คุณแก้คำตอบและลองใหม่ได้เสมอ</p>
+      <section className="hub-path" id="hub-path">
+        <div className="hub-path-copy">
+          <p className="hub-section-index">ลำดับที่แนะนำ</p>
+          <h2>หนึ่งเส้นทาง<br />สี่ระดับความเข้าใจ</h2>
+          <p>เรียนต่อเนื่องสำหรับผู้เริ่มต้น หรือใช้หัวข้อด้านขวาเป็นสารบัญสำหรับทบทวนหน้างาน</p>
         </div>
+        <ol className="hub-path-list">
+          {lessons.map((lesson, index) => (
+            <li key={lesson.number}>
+              <span>{lesson.number}</span>
+              <div>
+                <small>{lesson.eyebrow}</small>
+                <h3>{lesson.title}</h3>
+                <p>{index === 0 ? "สร้างแผนที่ความคิดของระบบมือถือ" : index === 1 ? "เข้าใจภาษาของคลื่นและสัญลักษณ์" : index === 2 ? "ตามเส้นทางการสื่อสารใน 5G NR" : "เปลี่ยนตัวเลขวัดให้เป็นการวิเคราะห์"}</p>
+              </div>
+              <Link href={lesson.href}>เรียนบทนี้ <span aria-hidden="true">→</span></Link>
+            </li>
+          ))}
+        </ol>
+      </section>
 
-        <div className="quiz-list">
-          {quiz.map((item, index) => {
-            const isCorrect = answers[index] === item.answer;
-            return (
-              <fieldset
-                key={item.question}
-                className={
-                  submitted
-                    ? isCorrect
-                      ? "question correct"
-                      : "question incorrect"
-                    : "question"
-                }
-              >
-                <legend>
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  {item.question}
-                </legend>
-                <div className="choices">
-                  {item.choices.map((choice, choiceIndex) => (
-                    <label key={choice}>
-                      <input
-                        type="radio"
-                        name={`question-${index}`}
-                        checked={answers[index] === choiceIndex}
-                        onChange={() => {
-                          setAnswers((currentAnswers) => ({
-                            ...currentAnswers,
-                            [index]: choiceIndex,
-                          }));
-                          setSubmitted(false);
-                        }}
-                      />
-                      <span>{choice}</span>
-                    </label>
-                  ))}
-                </div>
-                {submitted && (
-                  <p className="feedback" role="status">
-                    <strong>{isCorrect ? "ถูกต้อง" : "ทบทวนอีกนิด"}</strong>
-                    {item.explain}
-                  </p>
-                )}
-              </fieldset>
-            );
-          })}
+      <section className="hub-principles" id="hub-principles">
+        <div className="hub-section-heading">
+          <p className="hub-section-index">แนวทางของเรา</p>
+          <h2>อ่านง่าย แต่ไม่ลดทอนความถูกต้อง</h2>
         </div>
-
-        <div className="quiz-actions">
-          <button
-            type="button"
-            className="primary-action"
-            onClick={() => setSubmitted(true)}
-            disabled={Object.keys(answers).length !== quiz.length}
-          >
-            ตรวจคำตอบ
-          </button>
-          {submitted && (
-            <>
-              <p className="score" aria-live="polite">
-                ได้ <strong>{score}/{quiz.length}</strong> คะแนน
-                <span>
-                  {score === quiz.length
-                    ? "เยี่ยมมาก คุณพร้อมไปบทต่อไป"
-                    : "อ่านเฉลยแล้วลองใหม่ได้"}
-                </span>
-              </p>
-              <button type="button" className="text-action" onClick={resetQuiz}>
-                ทำแบบทดสอบใหม่
-              </button>
-            </>
-          )}
+        <div className="hub-principle-list">
+          <article><span>01</span><h3>เริ่มจากภาพใหญ่</h3><p>รู้ก่อนว่าคำศัพท์อยู่ส่วนใดของระบบ แล้วค่อยเปิดรายละเอียดเชิงเทคนิค</p></article>
+          <article><span>02</span><h3>เห็นการทำงาน</h3><p>ใช้ภาพเคลื่อนไหวและการทดลองแบบโต้ตอบเพื่ออธิบายสิ่งที่มองไม่เห็นด้วยตา</p></article>
+          <article><span>03</span><h3>ตรวจความเข้าใจ</h3><p>ทุกบทมีแบบทดสอบพร้อมเฉลย เพื่อให้รู้ทันทีว่าส่วนใดควรทบทวน</p></article>
+          <article><span>04</span><h3>อ้างอิงมาตรฐาน</h3><p>แยกนิยามมาตรฐาน ข้อแนะนำภาคสนาม และคำเรียกทางการตลาดออกจากกัน</p></article>
         </div>
       </section>
 
-      <section className="sources-section">
+      <section className="hub-cta">
         <div>
-          <p className="section-index">แหล่งอ้างอิงหลัก</p>
-          <h2>ตรวจสอบต่อจากองค์กรกำหนดมาตรฐาน</h2>
+          <p className="hub-section-index">พร้อมเริ่มหรือยัง?</p>
+          <h2>เริ่มจาก 1G แล้วค่อยเดินไปถึง Beam และ Scanner</h2>
         </div>
-        <ul>
-          <li>
-            <a href="https://www.3gpp.org/technical_specs_and_reports/technical_specifications" target="_blank" rel="noreferrer">
-              3GPP: Generations of Mobile Standards
-            </a>
-          </li>
-          <li>
-            <a href="https://www.3gpp.org/technologies/5g-system-overview" target="_blank" rel="noreferrer">
-              3GPP: 5G System Overview
-            </a>
-          </li>
-          <li>
-            <a href="https://www.3gpp.org/specifications-technologies/releases/release-15" target="_blank" rel="noreferrer">
-              3GPP: Release 15
-            </a>
-          </li>
-          <li>
-            <a href="https://www.itu.int/en/ITU-R/Documents/FAQ-IMT-2024.pdf" target="_blank" rel="noreferrer">
-              ITU-R: FAQ on International Mobile Telecommunications
-            </a>
-          </li>
-          <li>
-            <a href="https://tiaonline.org/standard/tia-95/" target="_blank" rel="noreferrer">
-              TIA: TIA-95 CDMA Standard
-            </a>
-          </li>
-        </ul>
+        <Link className="hub-primary hub-primary-light" href="/network-evolution">
+          เปิดบทเรียนที่ 01 <span aria-hidden="true">→</span>
+        </Link>
       </section>
 
-      <footer>
+      <footer className="hub-footer">
         <div>
-          <p>จบบทเรียนที่ 01</p>
-          <h2>ตอนนี้คุณเห็นเส้นทางจาก 1G ถึง 5G แล้ว</h2>
+          <Link className="hub-brand hub-brand-footer" href="/">
+            <span aria-hidden="true">RF</span>
+            <span><strong>Mobile Network Classroom</strong><small>เรียนรู้เครือข่ายมือถืออย่างเป็นระบบ</small></span>
+          </Link>
+          <p>สื่อการสอนภาษาไทยสำหรับผู้เริ่มต้นและช่างเทคนิค</p>
         </div>
-        <div className="footer-links">
-          <a href="/rf-modulation">บทเรียนถัดไป: RF และ Modulation →</a>
-          <a href="#top">กลับไปทบทวนด้านบน ↑</a>
-        </div>
+        <nav aria-label="ลิงก์บทเรียนท้ายหน้า">
+          {lessons.map((lesson) => <Link key={lesson.number} href={lesson.href}>{lesson.number} {lesson.title}</Link>)}
+        </nav>
+        <a href="#hub-top">กลับด้านบน ↑</a>
       </footer>
     </main>
   );

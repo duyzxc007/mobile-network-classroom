@@ -25,18 +25,41 @@ async function render(path = "/") {
   );
 }
 
-test("server-renders the complete Thai lesson", async () => {
+test("server-renders the complete Thai course hub", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
   assert.match(html, /lang="th"/i);
+  assert.match(html, /ศูนย์รวมบทเรียนเครือข่ายมือถือ/);
+  assert.match(html, /เข้าใจเครือข่ายมือถือ/);
+  assert.match(html, /hub-lesson-01/);
+  assert.match(html, /hub-lesson-02/);
+  assert.match(html, /hub-lesson-03/);
+  assert.match(html, /hub-lesson-04/);
   assert.match(html, /พื้นฐานเครือข่าย 1G/);
+  assert.match(html, /คลื่น การมอดูเลต และการแบ่งทรัพยากร/);
+  assert.match(html, /โครงสร้างและช่องสัญญาณ 5G NR/);
+  assert.match(html, /คุณภาพสัญญาณ Beamforming และการวัดภาคสนาม/);
+  assert.match(html, /href="\/network-evolution"/);
+  assert.match(html, /href="\/rf-modulation"/);
+  assert.match(html, /href="\/5g-nr"/);
+  assert.match(html, /href="\/signal-quality"/);
+  assert.doesNotMatch(html, /codex-preview|SkeletonPreview|react-loading-skeleton/i);
+});
+
+test("server-renders the preserved network evolution lesson", async () => {
+  const response = await render("/network-evolution");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /พื้นฐานเครือข่ายมือถือ 1G ถึง 5G/);
   assert.match(html, /GSM กับ CDMA/);
   assert.match(html, /3GPP เขียนสเปก/);
   assert.match(html, /แบบทดสอบท้ายบท/);
-  assert.doesNotMatch(html, /codex-preview|SkeletonPreview|react-loading-skeleton/i);
+  assert.match(html, /กลับหน้ารวมบทเรียน/);
 });
 
 test("server-renders the separate RF and modulation lesson", async () => {
@@ -90,8 +113,10 @@ test("server-renders the separate signal quality and field measurement lesson", 
 });
 
 test("removes temporary starter UI and preserves product context", async () => {
-  const [page, rfPage, rfCss, nrPage, nrCss, sqPage, sqCss, layout, product, css] = await Promise.all([
+  const [page, homeCss, evolutionPage, rfPage, rfCss, nrPage, nrCss, sqPage, sqCss, layout, product, css] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/home.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/network-evolution/NetworkEvolutionClient.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/rf-modulation/RfLessonClient.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/rf-modulation/rf-modulation.css", import.meta.url), "utf8"),
     readFile(new URL("../app/5g-nr/NrLessonClient.tsx", import.meta.url), "utf8"),
@@ -104,8 +129,14 @@ test("removes temporary starter UI and preserves product context", async () => {
   ]);
 
   await assert.rejects(access(new URL("../app/_sites-preview", templateRoot)));
-  assert.match(page, /5G NR/);
-  assert.match(page, /แบบทดสอบ/);
+  assert.match(page, /network-evolution/);
+  assert.match(page, /rf-modulation/);
+  assert.match(page, /signal-quality/);
+  assert.match(page, /บทเรียนทั้งหมด/);
+  assert.match(homeCss, /\.hub-header\s*\{[\s\S]*position:\s*sticky/);
+  assert.match(homeCss, /prefers-reduced-motion/);
+  assert.match(evolutionPage, /GSM กับ CDMA/);
+  assert.match(evolutionPage, /แบบทดสอบท้ายบท/);
   assert.match(rfPage, /SC-FDMA/);
   assert.match(rfPage, /Dynamic Spectrum Sharing/);
   assert.match(rfPage, /prefers-reduced-motion/);

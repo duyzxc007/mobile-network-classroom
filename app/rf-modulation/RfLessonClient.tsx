@@ -911,8 +911,9 @@ export default function RfLessonClient() {
           <p>จบบทเรียนที่ 02</p>
           <h2>ตอนนี้คุณอ่านคลื่น และเห็นวิธีแบ่งทรัพยากรแล้ว</h2>
         </div>
-        <div>
-          <Link href="/">← กลับบทเรียน 1G ถึง 5G</Link>
+        <div className="rf-footer-links" style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "16px" }}>
+          <Link href="/">← กลับหน้ารวมบทเรียน</Link>
+          <Link href="/network-evolution">← กลับบทที่ 01 (1G ถึง 5G)</Link>
           <Link href="/5g-nr">บทเรียนถัดไป: โครงสร้าง 5G NR →</Link>
           <a href="#rf-top">ทบทวนด้านบน ↑</a>
         </div>

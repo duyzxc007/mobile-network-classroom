@@ -338,7 +338,7 @@ export default function CoreSecurityLessonClient() {
         ? "ควรยกระดับการตรวจสอบ"
         : "เป็นเพียงสัญญาณเตือน";
   const answeredAll = answers.every((answer) => answer !== null);
-  const score = answers.reduce(
+  const score = answers.reduce<number>(
     (total, answer, index) => total + (answer === quiz[index].answer ? 1 : 0),
     0,
   );
@@ -968,9 +968,10 @@ export default function CoreSecurityLessonClient() {
           <p>บทที่ 06 · 5G Core, Slicing & Security</p>
           <h2>ส่ง Packet ให้ถูกทาง<br />และเชื่อถือให้ถูกชั้น</h2>
         </div>
-        <div className="cs-footer-links">
+        <div className="cs-footer-links" style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "16px" }}>
           <Link href="/">กลับหน้ารวมบทเรียน ↗</Link>
           <Link href="/mobility">← ทบทวนบทที่ 05</Link>
+          <Link href="/field-guide">ไปต่อที่: คู่มือภาคสนาม →</Link>
           <a href="#top">กลับด้านบน ↑</a>
         </div>
       </footer>

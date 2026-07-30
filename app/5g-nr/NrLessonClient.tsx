@@ -884,9 +884,10 @@ export default function NrLessonClient() {
           <p>จบบทเรียนที่ 03</p>
           <h2>ตอนนี้คุณตามเส้นทางจาก SSB ถึงข้อมูลบน PDSCH และ PUSCH ได้แล้ว</h2>
         </div>
-        <div>
-          <Link href="/signal-quality">บทต่อไป: คุณภาพสัญญาณ →</Link>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "16px" }}>
+          <Link href="/">← กลับหน้ารวมบทเรียน</Link>
           <Link href="/rf-modulation">← กลับบทเรียน RF</Link>
+          <Link href="/signal-quality">บทต่อไป: คุณภาพสัญญาณ →</Link>
           <a href="#nr-top">ทบทวนด้านบน ↑</a>
         </div>
       </footer>

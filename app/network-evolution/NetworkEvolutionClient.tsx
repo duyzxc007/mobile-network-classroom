@@ -836,7 +836,7 @@ export default function NetworkEvolutionClient() {
         </div>
         <div className="footer-links">
           <Link href="/">← กลับหน้ารวมบทเรียน</Link>
-          <a href="/rf-modulation">บทเรียนถัดไป: RF และ Modulation →</a>
+          <Link href="/rf-modulation">บทเรียนถัดไป: RF และ Modulation →</Link>
           <a href="#top">กลับไปทบทวนด้านบน ↑</a>
         </div>
       </footer>

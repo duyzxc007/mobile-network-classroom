@@ -803,8 +803,10 @@ export default function SignalQualityClient() {
           <p>จบบทเรียนที่ 04</p>
           <h2>ตอนนี้คุณอ่านค่าคุณภาพ เห็น Cell กับ Beam และเลือกเครื่องมือวัดได้ตรงคำถามแล้ว</h2>
         </div>
-        <div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "16px" }}>
+          <Link href="/">← กลับหน้ารวมบทเรียน</Link>
           <Link href="/5g-nr">← กลับบทเรียน 5G NR</Link>
+          <Link href="/mobility">บทต่อไป: จากเปิดเครื่องถึง Handover →</Link>
           <a href="#sq-top">ทบทวนด้านบน ↑</a>
         </div>
       </footer>

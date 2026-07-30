@@ -240,7 +240,7 @@ export default function MobilityLessonClient() {
           : "Handover ไป Cell B";
 
   const answeredAll = answers.every((answer) => answer !== null);
-  const score = answers.reduce(
+  const score = answers.reduce<number>(
     (total, answer, index) => total + (answer === quiz[index].answer ? 1 : 0),
     0,
   );
@@ -838,9 +838,10 @@ export default function MobilityLessonClient() {
           <p>บทที่ 05 · Connection & Mobility</p>
           <h2>อย่าวัดเพียงจุดเดียว<br />เมื่อปัญหาเกิดระหว่างทาง</h2>
         </div>
-        <div className="mv-footer-links">
+        <div className="mv-footer-links" style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "16px" }}>
           <Link href="/">กลับหน้ารวมบทเรียน ↗</Link>
           <Link href="/signal-quality">← ทบทวนบทที่ 04</Link>
+          <Link href="/core-security">บทต่อไป: 5G Core & Security →</Link>
           <a href="#top">กลับด้านบน ↑</a>
         </div>
       </footer>

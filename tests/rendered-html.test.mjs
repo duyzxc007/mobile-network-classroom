@@ -52,6 +52,8 @@ test("server-renders the complete Thai course hub", async () => {
   assert.match(html, /href="\/signal-quality"/);
   assert.match(html, /href="\/mobility"/);
   assert.match(html, /href="\/core-security"/);
+  assert.match(html, /href="\/field-guide"/);
+  assert.match(html, /คู่มือภาคสนาม/);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|react-loading-skeleton/i);
 });
 
@@ -160,8 +162,23 @@ test("server-renders the 5G core, slicing, and security lesson", async () => {
   assert.match(html, /แบบทดสอบท้ายบท/);
 });
 
+test("server-renders the field pocket reference", async () => {
+  const response = await render("/field-guide");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /Field Pocket Reference/);
+  assert.match(html, /สามค่าหลัก/);
+  assert.match(html, /RSRP \/ SS-RSRP/);
+  assert.match(html, /S.*rxlev/);
+  assert.match(html, /5QI ตัวอย่าง/);
+  assert.match(html, /SCANNER · PASSIVE/);
+  assert.match(html, /ใช้เป็นช่วงอ้างอิงเบื้องต้น ไม่ใช่เกณฑ์มาตรฐานตายตัว/);
+});
+
 test("removes temporary starter UI and preserves product context", async () => {
-  const [page, homeCss, evolutionPage, rfPage, rfCss, nrPage, nrCss, sqPage, sqCss, mvPage, mvCss, csPage, csCss, layout, product, css] = await Promise.all([
+  const [page, homeCss, evolutionPage, rfPage, rfCss, nrPage, nrCss, sqPage, sqCss, mvPage, mvCss, csPage, csCss, supportPage, fieldPage, fieldCss, layout, product, css] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/home.css", import.meta.url), "utf8"),
     readFile(new URL("../app/network-evolution/NetworkEvolutionClient.tsx", import.meta.url), "utf8"),
@@ -175,6 +192,9 @@ test("removes temporary starter UI and preserves product context", async () => {
     readFile(new URL("../app/mobility/mobility.css", import.meta.url), "utf8"),
     readFile(new URL("../app/core-security/CoreSecurityLessonClient.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/core-security/core-security.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/LearningSupport.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/field-guide/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/field-guide/field-guide.css", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../PRODUCT.md", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
@@ -186,6 +206,7 @@ test("removes temporary starter UI and preserves product context", async () => {
   assert.match(page, /signal-quality/);
   assert.match(page, /mobility/);
   assert.match(page, /core-security/);
+  assert.match(page, /field-guide/);
   assert.match(page, /บทเรียนทั้งหมด/);
   assert.match(homeCss, /\.hub-header\s*\{[\s\S]*position:\s*sticky/);
   assert.match(homeCss, /prefers-reduced-motion/);
@@ -224,6 +245,12 @@ test("removes temporary starter UI and preserves product context", async () => {
   assert.match(csPage, /prefers-reduced-motion/);
   assert.match(csCss, /cs-motion-paused/);
   assert.match(csCss, /\.cs-header\s*\{[\s\S]*position:\s*sticky/);
+  assert.match(supportPage, /สรุปใน 3 บรรทัด/);
+  assert.match(supportPage, /quiz-summary-box/);
+  assert.match(supportPage, /mobile-classroom-outdoor/);
+  assert.match(fieldPage, /S.*rxlev/);
+  assert.match(fieldPage, /Packet Delay Budget/);
+  assert.match(fieldCss, /\.fg-header\s*\{[\s\S]*position:\s*sticky/);
   assert.match(css, /prefers-reduced-motion/);
   assert.match(layout, /lang="th"/);
   assert.match(product, /บุคคลทั่วไปและช่างเทคนิค/);

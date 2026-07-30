@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
+import { BeginnerBridge, QuizSummary } from "../components/LearningSupport";
 
 type FrequencyRange = "FR1" | "FR2-1" | "FR2-2";
 type Architecture = "NSA" | "SA";
@@ -348,6 +349,7 @@ export default function NrLessonClient() {
             <a href="#nr-structure">โครงสร้าง</a>
             <a href="#nr-grid">Resource Grid</a>
             <a href="#nr-channels">Channel / Signal</a>
+            <Link href="/field-guide">คู่มือภาคสนาม</Link>
             <a href="#nr-quiz">แบบทดสอบ</a>
           </nav>
           <button
@@ -398,6 +400,39 @@ export default function NrLessonClient() {
           </div>
         </div>
       </section>
+
+      <BeginnerBridge
+        lesson="nr"
+        tldr={[
+          "5G แบ่งคลื่นเป็นตารางเวลา × ความถี่ เพื่อซอยทรัพยากรให้มือถือหลายเครื่องใช้ร่วมกันโดยไม่วางข้อมูลทับกัน",
+          "มือถือมองหา SSB เพื่อจับเวลา ระบุ Cell และอ่านข้อมูลตั้งต้นว่าควรฟังระบบต่ออย่างไร",
+          "ก่อนส่งข้อมูล มือถือเคาะประตูด้วย PRACH แล้วรับคำสั่งจัดสรรผ่าน PDCCH ก่อนใช้ PDSCH/PUSCH รับส่งข้อมูลจริง",
+        ]}
+        analogy={{
+          title: "Resource Grid เหมือนตารางจองห้อง",
+          body: "แกนนอนคือช่วงเวลา แกนตั้งคือช่องความถี่ แต่ละช่องเล็กคือ RE และแถวความถี่ 12 Subcarriers รวมเป็น RB Scheduler ทำหน้าที่จองพื้นที่ให้ข้อมูลและสัญญาณควบคุมในแต่ละจังหวะ",
+        }}
+        scenario={{
+          title: "ทำไมเข้าลิฟต์แล้ว 5G หาย เหลือ 4G?",
+          body: "คลื่นย่านกลางหรือย่านสูงสูญเสียมากขึ้นเมื่อผ่านคอนกรีต โลหะ และมุมอับ โทรศัพท์จึงอาจเลือกย่านต่ำหรือ RAT อื่นที่ยังผ่านเกณฑ์ใช้งานได้ ไม่ได้แปลว่าเสา 5G ปิดเสมอไป",
+        }}
+        technicalNotes={[
+          {
+            title: "BWP ช่วยลดภาระและประหยัดพลังงาน",
+            body: "Cell อาจกว้างมาก แต่ UE ไม่จำเป็นต้องเปิดภาครับส่งเต็ม Bandwidth ตลอดเวลา เครือข่ายกำหนดหลาย BWP และสั่ง Active BWP ให้แคบลงช่วงกิจกรรมน้อย หรือกว้างขึ้นเมื่อมีข้อมูล ช่วยลดการประมวลผลและการใช้พลังงาน",
+          },
+          {
+            title: "PUCCH ไม่ใช่ช่องส่ง User Data",
+            body: "PUCCH ส่ง Uplink Control Information เช่น HARQ ACK/NACK, Scheduling Request และ CSI ส่วน PUSCH เป็นช่องข้อมูล Uplink และในบางกรณีสามารถพา UCI ร่วมไปได้",
+          },
+        ]}
+        terms={[
+          { term: "SSB", engineering: "ชุด PSS, SSS, PBCH และ PBCH DM-RS", plain: "ป้ายไฟนำทางที่ช่วยให้มือถือพบและเริ่มอ่าน Cell" },
+          { term: "Subcarrier", engineering: "ความถี่ย่อยแบบ Orthogonal ใน OFDM", plain: "เลนความถี่ย่อยบนถนนใหญ่" },
+          { term: "Resource Block", engineering: "ทรัพยากร 12 Subcarriers ใน Frequency Domain", plain: "กลุ่มเลน 12 ช่องที่ Scheduler ใช้อ้างอิง" },
+          { term: "Bandwidth Part", engineering: "ช่วงย่อยของ Carrier ที่ UE ใช้งานอยู่", plain: "เปิดใช้ถนนเฉพาะช่วงที่จำเป็น แทนการเฝ้าทั้งเส้น" },
+        ]}
+      />
 
       <section className="nr-roadmap" aria-labelledby="nr-roadmap-title">
         <p className="nr-section-index">แผนที่การเรียนรู้</p>
@@ -767,6 +802,19 @@ export default function NrLessonClient() {
           <p>เลือกให้ครบทั้ง {quiz.length} ข้อ แล้วตรวจคำตอบพร้อมคำอธิบายได้ทันที</p>
         </div>
 
+        {submitted && (
+          <QuizSummary
+            score={score}
+            total={quiz.length}
+            onRetry={() => {
+              setAnswers({});
+              setSubmitted(false);
+            }}
+            nextHref="/signal-quality"
+            nextLabel="ไปบทที่ 04"
+          />
+        )}
+
         <div className="nr-quiz-list">
           {quiz.map((item, index) => {
             const selected = answers[index];
@@ -812,17 +860,6 @@ export default function NrLessonClient() {
             onClick={() => setSubmitted(true)}
           >
             ตรวจคำตอบ
-          </button>
-          {submitted && <p className="nr-score"><strong>{score}/{quiz.length}</strong><span>คะแนน</span></p>}
-          <button
-            className="nr-reset"
-            type="button"
-            onClick={() => {
-              setAnswers({});
-              setSubmitted(false);
-            }}
-          >
-            เริ่มใหม่
           </button>
         </div>
       </section>

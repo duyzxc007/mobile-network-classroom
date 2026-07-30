@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { BeginnerBridge, QuizSummary } from "../components/LearningSupport";
 
 type Generation = {
   id: number;
@@ -179,6 +180,7 @@ export default function NetworkEvolutionClient() {
         <nav aria-label="หัวข้อในบทเรียน">
           <a href="#timeline">เส้นเวลา</a>
           <a href="#standards">มาตรฐาน</a>
+          <Link href="/field-guide">คู่มือภาคสนาม</Link>
           <a href="#quiz">แบบทดสอบ</a>
         </nav>
       </header>
@@ -218,6 +220,39 @@ export default function NetworkEvolutionClient() {
           <p>ทุกยุคแก้ข้อจำกัดของยุคก่อน และเพิ่มชนิดบริการที่เครือข่ายรองรับ</p>
         </div>
       </section>
+
+      <BeginnerBridge
+        lesson="evolution"
+        tldr={[
+          "1G ถึง 5G คือรุ่นใหญ่ของระบบมือถือ แต่ละรุ่นเปลี่ยนทั้งคลื่น โครงข่าย และบริการ ไม่ใช่แค่เพิ่มความเร็ว",
+          "GSM, UMTS/WCDMA, LTE และ 5G NR อยู่ในสายมาตรฐาน 3GPP ส่วน cdmaOne/cdma2000 เติบโตในสาย 3GPP2",
+          "ITU กำหนดกรอบ IMT ระดับโลก ส่วน 3GPP เขียนรายละเอียดทางเทคนิคให้ผู้ผลิตและผู้ให้บริการนำไปสร้างระบบร่วมกันได้",
+        ]}
+        analogy={{
+          title: "ห้องประชุมเดียวกัน แต่แบ่งคนละวิธี",
+          body: "FDMA เหมือนกั้นห้องย่อยให้คุยคนละห้อง, TDMA เหมือนผลัดกันพูดตามคิวเวลา และ CDMA เหมือนพูดพร้อมกันแต่ใช้รหัสหรือภาษาคนละชุด ผู้รับจึงแยกคู่สนทนาของตนออกมาได้",
+        }}
+        scenario={{
+          title: "ทำไมมือถือรุ่นใหม่ยังตกกลับไป 4G?",
+          body: "คำว่า 5G บนเครื่องไม่ได้หมายความว่าทุกพื้นที่มี 5G ครบทุกย่านและทุกโหมด เครือข่ายอาจใช้ LTE ช่วยในแบบ NSA หรือเลือก 4G เมื่อ Coverage, ความจุ และนโยบายเครือข่ายเหมาะกว่า",
+        }}
+        technicalNotes={[
+          {
+            title: "CDMA กับ WCDMA ไม่ใช่คำแทนกัน",
+            body: "CDMA เป็นแนวคิดการเข้าถึงด้วยรหัสและยังใช้เรียกตระกูล cdmaOne/cdma2000 ของ 3GPP2 ส่วน WCDMA คือ Radio Interface ของ UMTS ในสาย 3GPP แม้ทั้งคู่ใช้แนวคิด Code Division",
+          },
+          {
+            title: "Generation ไม่เท่ากับชื่อเทคโนโลยีเดียว",
+            body: "3G อยู่ภายใต้กรอบ IMT-2000 ซึ่งมีหลาย Radio Interface ขณะที่ LTE ถูกเรียก 4G ในตลาด และ LTE-Advanced จึงตอบเกณฑ์ IMT-Advanced อย่างเต็มรูปแบบ",
+          },
+        ]}
+        terms={[
+          { term: "Generation", engineering: "ช่วงวิวัฒนาการใหญ่ของระบบมือถือ", plain: "รุ่นใหญ่ของเครือข่าย เช่น 3G, 4G หรือ 5G" },
+          { term: "RAT", engineering: "Radio Access Technology", plain: "ภาษาวิทยุที่มือถือกับเสาสัญญาณใช้คุยกัน" },
+          { term: "Core Network", engineering: "ระบบกลางสำหรับตัวตน บริการ และเส้นทางข้อมูล", plain: "ศูนย์ควบคุมหลังสถานีฐาน" },
+          { term: "Handover", engineering: "การส่งต่อการเชื่อมต่อระหว่าง Cell", plain: "ส่งไม้ต่อให้เสาถัดไปโดยพยายามไม่ให้สายหลุด" },
+        ]}
+      />
 
       <section className="learning-outcomes" aria-labelledby="outcome-title">
         <p className="section-index">ก่อนเริ่มเรียน</p>
@@ -482,6 +517,16 @@ export default function NetworkEvolutionClient() {
           <p>เลือกคำตอบให้ครบ แล้วกดตรวจคำตอบ คุณแก้คำตอบและลองใหม่ได้เสมอ</p>
         </div>
 
+        {submitted && (
+          <QuizSummary
+            score={score}
+            total={quiz.length}
+            onRetry={resetQuiz}
+            nextHref="/rf-modulation"
+            nextLabel="ไปบทที่ 02"
+          />
+        )}
+
         <div className="quiz-list">
           {quiz.map((item, index) => {
             const isCorrect = answers[index] === item.answer;
@@ -539,21 +584,6 @@ export default function NetworkEvolutionClient() {
           >
             ตรวจคำตอบ
           </button>
-          {submitted && (
-            <>
-              <p className="score" aria-live="polite">
-                ได้ <strong>{score}/{quiz.length}</strong> คะแนน
-                <span>
-                  {score === quiz.length
-                    ? "เยี่ยมมาก คุณพร้อมไปบทต่อไป"
-                    : "อ่านเฉลยแล้วลองใหม่ได้"}
-                </span>
-              </p>
-              <button type="button" className="text-action" onClick={resetQuiz}>
-                ทำแบบทดสอบใหม่
-              </button>
-            </>
-          )}
         </div>
       </section>
 
@@ -566,6 +596,11 @@ export default function NetworkEvolutionClient() {
           <li>
             <a href="https://www.3gpp.org/technical_specs_and_reports/technical_specifications" target="_blank" rel="noreferrer">
               3GPP: Generations of Mobile Standards
+            </a>
+          </li>
+          <li>
+            <a href="https://www.3gpp.org/about-3gpp/about-3gpp/" target="_blank" rel="noreferrer">
+              3GPP: WCDMA ในสาย 3GPP และกลุ่ม Radio Interface ของ IMT-2000
             </a>
           </li>
           <li>

@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
+import { OutdoorModeToggle } from "./components/LearningSupport";
 import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://mobile-network-classroom-th-v2.duyinw.chatgpt.site"),
   title: "Mobile Network Classroom | เรียนรู้เครือข่ายมือถืออย่างเป็นระบบ",
   description:
-    "ศูนย์รวมบทเรียนภาษาไทยเรื่องวิวัฒนาการ 1G–5G, RF, โครงสร้าง 5G NR, คุณภาพสัญญาณ, Mobility, 5G Core, Network Slicing และ Security",
+    "บทเรียนเครือข่ายมือถือภาษาไทยแบบเข้าใจง่าย พร้อม TL;DR อุปมา สื่อโต้ตอบ และคู่มือภาคสนาม ตั้งแต่ 1G–5G ถึง 5G Core และ Security",
   openGraph: {
     title: "Mobile Network Classroom",
-    description: "จาก 1G และพื้นฐาน RF ไปจนถึง 5G NR, Mobility, 5G Core, Network Slicing และ Security",
+    description: "เรียนจากภาษาบ้าน ๆ ไปสู่รายละเอียด 1G–5G, RF, 5G NR, Mobility, Core, Slicing และ Security",
     type: "website",
     images: [{ url: "/og.png", width: 1731, height: 907 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Mobile Network Classroom",
-    description: "6 บทเรียนเครือข่ายมือถือภาษาไทย จากพื้นฐานถึง 5G Core, Network Slicing และ Security",
+    description: "6 บทเรียนพร้อม TL;DR สื่อโต้ตอบ แบบทดสอบ และคู่มือภาคสนาม",
     images: ["/og.png"],
   },
   icons: {
@@ -31,7 +32,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="th">
-      <body>{children}</body>
+      <body>
+        {children}
+        <OutdoorModeToggle />
+      </body>
     </html>
   );
 }

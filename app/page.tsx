@@ -154,6 +154,7 @@ export default function Home() {
         <nav aria-label="เมนูหน้าหลัก">
           <a href="#hub-lessons">บทเรียนทั้งหมด</a>
           <a href="#hub-path">ลำดับการเรียน</a>
+          <Link href="/field-guide">คู่มือภาคสนาม</Link>
           <a href="#hub-principles">แนวทางของเรา</a>
         </nav>
         <Link className="hub-header-action" href="/network-evolution">เริ่มบทที่ 01</Link>
@@ -173,6 +174,7 @@ export default function Home() {
               เริ่มเรียนตามลำดับ <span aria-hidden="true">→</span>
             </Link>
             <a className="hub-secondary" href="#hub-lessons">เลือกบทเรียนเอง ↓</a>
+            <Link className="hub-secondary" href="/field-guide">เปิดคู่มือภาคสนาม ↗</Link>
           </div>
           <dl className="hub-course-facts">
             <div><dt>6</dt><dd>บทเรียนครบชุด</dd></div>
@@ -282,6 +284,23 @@ export default function Home() {
           <article><span>03</span><h3>ตรวจความเข้าใจ</h3><p>ทุกบทมีแบบทดสอบพร้อมเฉลย เพื่อให้รู้ทันทีว่าส่วนใดควรทบทวน</p></article>
           <article><span>04</span><h3>อ้างอิงมาตรฐาน</h3><p>แยกนิยามมาตรฐาน ข้อแนะนำภาคสนาม และคำเรียกทางการตลาดออกจากกัน</p></article>
         </div>
+      </section>
+
+      <section className="hub-pocket">
+        <div>
+          <p className="hub-section-index">สำหรับช่างเทคนิคหน้างาน</p>
+          <h2>Pocket Reference<br />เปิดข้อมูลสำคัญในคลิกเดียว</h2>
+          <p>
+            รวมช่วงค่า RSRP/RSRQ/SINR แบบใช้งานเร็ว สูตร PCI และ S-criteria,
+            ค่า 5QI ตัวอย่าง และลำดับตรวจปัญหา Scanner เทียบกับโทรศัพท์
+          </p>
+        </div>
+        <div className="hub-pocket-cards" aria-hidden="true">
+          <span><b>RSRP</b><small>−80 / −100 / −110</small></span>
+          <span><b>PCI</b><small>0–1007</small></span>
+          <span><b>5QI</b><small>QoS Map</small></span>
+        </div>
+        <Link className="hub-primary" href="/field-guide">เปิดคู่มือภาคสนาม <span aria-hidden="true">→</span></Link>
       </section>
 
       <section className="hub-cta">

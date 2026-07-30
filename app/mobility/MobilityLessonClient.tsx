@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
+import { BeginnerBridge, QuizSummary } from "../components/LearningSupport";
 
 type CandidateKey = "A" | "B" | "C";
 
@@ -265,6 +266,7 @@ export default function MobilityLessonClient() {
             <a href="#selection">เลือก Cell</a>
             <a href="#handover">Handover</a>
             <a href="#field">ภาคสนาม</a>
+            <Link href="/field-guide">คู่มือภาคสนาม</Link>
             <a href="#quiz">แบบทดสอบ</a>
           </nav>
           <button
@@ -313,6 +315,39 @@ export default function MobilityLessonClient() {
           <p>ค้นหา → เลือก → เชื่อมต่อ → วัด → เปลี่ยน Cell</p>
         </div>
       </section>
+
+      <BeginnerBridge
+        lesson="mobility"
+        tldr={[
+          "เปิดเครื่องแล้วมือถือยังใช้งานไม่ได้ทันที ต้องค้นหา Cell อ่านข้อมูลระบบ ขอช่องทางวิทยุ และลงทะเบียนให้เครือข่ายรู้จักก่อน",
+          "ตอนว่างเครื่องเลือก Cell เองตามเกณฑ์และลำดับความสำคัญ แต่ตอนกำลังเชื่อมต่อ เครือข่ายใช้ Measurement Report ช่วยตัดสิน Handover",
+          "Hysteresis และ Time-to-Trigger ช่วยกันไม่ให้มือถือสลับ Cell ไปมาเพราะค่าสัญญาณแกว่งเพียงชั่วคราว",
+        ]}
+        analogy={{
+          title: "Handover เหมือนการวิ่งผลัด",
+          body: "Cell เดิมถือไม้ต่ออยู่ ขณะ UE รายงานว่า Cell ข้างหน้าดีกว่า เครือข่ายต้องเตรียมปลายทางและส่งไม้ในจังหวะที่เหมาะ เร็วเกินไปอาจย้ายโดยไม่จำเป็น ช้าเกินไปอาจหลุดก่อนถึง Cell ใหม่",
+        }}
+        scenario={{
+          title: "ทำไมโทรผ่านรถแล้วเสียงสะดุดตรงจุดเดิม?",
+          body: "บริเวณรอยต่อ Cell อาจมี Coverage ซ้อน, Interference, Neighbor Relation หรือค่า Handover ไม่เหมาะ การเห็น RSRP ของ Cell ใหม่แรงกว่าอย่างเดียวจึงยังไม่พอ ต้องดู Event, TTT, Failure Cause และคุณภาพ Uplink ร่วมกัน",
+        }}
+        technicalNotes={[
+          {
+            title: "S-criteria ก่อนถือว่า Cell เหมาะสม",
+            body: "ใน NR Cell Selection ต้องผ่าน Srxlev > 0 และ Squal > 0 โดย Srxlev เปรียบเทียบค่าที่วัดกับ Qrxlevmin พร้อม Offset และ Power Compensation ส่วน Squal เปรียบเทียบคุณภาพกับ Qqualmin จึงไม่ใช่การเลือก RSRP ที่แรงที่สุดอย่างเดียว",
+          },
+          {
+            title: "Beam Switch ไม่เท่ากับ Cell Switch",
+            body: "การเปลี่ยน SSB Beam ภายใน Cell เดิมอาจยังใช้ PCI และ Cell Context เดิม ส่วน Cell Reselection/Handover คือการเปลี่ยน Serving Cell และมักเห็น PCI หรือ Cell Identity เปลี่ยน ต้องแยกสองระดับนี้เวลาอ่าน Log",
+          },
+        ]}
+        terms={[
+          { term: "Cell Selection", engineering: "การเลือก Suitable Cell เพื่อ Camp", plain: "เลือกจุดบริการแรกที่ผ่านเงื่อนไข" },
+          { term: "Event A3", engineering: "Neighbor ดีกว่า Serving มากกว่า Offset ตามเงื่อนไข", plain: "สัญญาณจากตัวเลือกใหม่ดีพอให้เริ่มพิจารณาย้าย" },
+          { term: "Hysteresis", engineering: "ระยะเผื่อเพื่อลดการแกว่งของเงื่อนไข", plain: "กันชนไม่ให้สลับไปมาง่ายเกินไป" },
+          { term: "Time-to-Trigger", engineering: "เวลาที่เงื่อนไขต้องคงอยู่ก่อน Report", plain: "ต้องดีต่อเนื่องนานพอ ไม่ใช่ดีแวบเดียว" },
+        ]}
+      />
 
       <section className="mv-outcomes">
         <div>
@@ -725,6 +760,19 @@ export default function MobilityLessonClient() {
           <p>เลือกคำตอบให้ครบทั้ง 10 ข้อ แล้วตรวจผลพร้อมคำอธิบาย</p>
         </div>
 
+        {submitted && (
+          <QuizSummary
+            score={score}
+            total={quiz.length}
+            onRetry={() => {
+              setAnswers(Array(quiz.length).fill(null));
+              setSubmitted(false);
+            }}
+            nextHref="/core-security"
+            nextLabel="ไปบทที่ 06"
+          />
+        )}
+
         <div className="mv-quiz-list">
           {quiz.map((item, questionIndex) => {
             const isCorrect = answers[questionIndex] === item.answer;
@@ -766,17 +814,7 @@ export default function MobilityLessonClient() {
           <button className="mv-primary" type="button" disabled={!answeredAll} onClick={() => setSubmitted(true)}>
             ตรวจคำตอบ
           </button>
-          <p><strong>{submitted ? score : "—"} / {quiz.length}</strong><span>{submitted ? (score >= 8 ? "พร้อมต่อยอดสู่ Drive Test" : "ลองอ่านส่วนที่ยังพลาดอีกครั้ง") : "ตอบให้ครบก่อนตรวจ"}</span></p>
-          <button
-            className="mv-text-button"
-            type="button"
-            onClick={() => {
-              setAnswers(Array(quiz.length).fill(null));
-              setSubmitted(false);
-            }}
-          >
-            เริ่มใหม่
-          </button>
+          {!submitted && <p><strong>— / {quiz.length}</strong><span>ตอบให้ครบก่อนตรวจ</span></p>}
         </div>
       </section>
 

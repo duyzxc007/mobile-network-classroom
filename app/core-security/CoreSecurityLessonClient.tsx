@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
+import { BeginnerBridge, QuizSummary } from "../components/LearningSupport";
 
 type FunctionKey = "AMF" | "SMF" | "UPF" | "UDM" | "AUSF" | "NSSF";
 type SliceKey = "broadband" | "control" | "sensors";
@@ -364,6 +365,7 @@ export default function CoreSecurityLessonClient() {
             <a href="#slicing">Slicing</a>
             <a href="#security">Security</a>
             <a href="#fake-base">สถานีฐานปลอม</a>
+            <Link href="/field-guide">คู่มือภาคสนาม</Link>
             <a href="#quiz">แบบทดสอบ</a>
           </nav>
           <button
@@ -414,6 +416,39 @@ export default function CoreSecurityLessonClient() {
           <p><span>CONTROL</span> ตัดสินใจ · <span>USER</span> ส่ง Packet · <span>SECURITY</span> สร้างความเชื่อถือ</p>
         </div>
       </section>
+
+      <BeginnerBridge
+        lesson="core"
+        tldr={[
+          "AMF ดูการเข้าถึงและการเคลื่อนที่, SMF วางแผน Session/QoS และควบคุม UPF ส่วน UPF เป็นทางผ่านของ Packet ผู้ใช้",
+          "Network Slice คือชุดความสามารถเชิงตรรกะบนโครงสร้างร่วมกัน ส่วน QoS Flow แยกวิธีดูแล Traffic ภายใน PDU Session",
+          "USIM ช่วยยืนยันตัวตนและสร้างกุญแจแบบลำดับชั้น ส่วน SUCI ช่วยปกปิดส่วนระบุตัวสมาชิกก่อนเครือข่ายบ้านกู้กลับเป็น SUPI",
+        ]}
+        analogy={{
+          title: "สนามบินหนึ่งแห่ง มีทั้งคนคุมและทางขนส่ง",
+          body: "AMF เหมือนด่านตรวจคนเข้าเมืองที่รู้ว่าใครเข้าและเคลื่อนที่อย่างไร, SMF เหมือนฝ่ายวางแผนเส้นทางและเที่ยวบิน, UPF เหมือนถนนกับสายพานที่ขนของจริง ส่วน Slice เหมือนเลนบริการพิเศษที่ใช้อาคารและทางวิ่งร่วมกันแต่กำหนดกติกาคนละแบบ",
+        }}
+        scenario={{
+          title: "ทำไมสปีดสูง แต่เกมยังปิงและกระตุก?",
+          body: "ความเร็วเหมือนความกว้างท่อ ส่วน Latency คือเวลาที่ Packet เดินทางไปกลับ เส้นทางผ่าน UPF, ระยะถึง Server, Queue, Radio Scheduling และ Load ล้วนมีผล Edge Computing ช่วยลดระยะบางส่วนได้ แต่ไม่ได้รับประกันปิงต่ำเอง",
+        }}
+        technicalNotes={[
+          {
+            title: "ECIES กับ Null Scheme ของ SUCI",
+            body: "3GPP กำหนด SUCI Protection Scheme 0x0 เป็น Null Scheme และ 0x1/0x2 เป็น ECIES Profile A/B แบบใช้ Public Key ของ Home Network; Null Scheme ไม่ปกปิด SUPI จึงไม่มี Privacy Protection ส่วนข้อมูล Routing ของ Home Network บางส่วนยังต้องมองเห็นได้แม้ใช้ ECIES",
+          },
+          {
+            title: "Slice ไม่ใช่วงจรกายภาพแยกเสมอ",
+            body: "หลาย Slice อาจใช้ RAN, Transport, Core Platform หรือ UPF ร่วมกัน การแยกจริงขึ้นกับการออกแบบ Policy, Resource Isolation, Security Control และ SLA จึงไม่ควรตีความว่า Slice หนึ่งปลอดภัยหรือเร็วกว่าโดยอัตโนมัติ",
+          },
+        ]}
+        terms={[
+          { term: "AMF", engineering: "Access and Mobility Management Function", plain: "ด่านรับลงทะเบียนและติดตามการเคลื่อนที่" },
+          { term: "SMF", engineering: "Session Management Function", plain: "ผู้วางแผน Session, QoS และเลือกทางผ่านข้อมูล" },
+          { term: "UPF", engineering: "User Plane Function", plain: "ทางด่วนที่ส่ง Packet ผู้ใช้ไปยังเครือข่ายปลายทาง" },
+          { term: "QoS Flow", engineering: "หน่วย Traffic ที่ได้รับการดูแล QoS แบบเดียวกัน", plain: "เลนข้อมูลที่มีกติกาความสำคัญและความหน่วงเฉพาะ" },
+        ]}
+      />
 
       <section className="cs-outcomes">
         <div>
@@ -855,6 +890,18 @@ export default function CoreSecurityLessonClient() {
           <h2>แยกเส้นทาง<br />และชั้นความปลอดภัยได้หรือยัง?</h2>
           <p>ตอบให้ครบทั้ง 10 ข้อ แล้วตรวจผลพร้อมคำอธิบาย</p>
         </div>
+        {submitted && (
+          <QuizSummary
+            score={score}
+            total={quiz.length}
+            onRetry={() => {
+              setAnswers(Array(quiz.length).fill(null));
+              setSubmitted(false);
+            }}
+            nextHref="/field-guide"
+            nextLabel="เปิดคู่มือภาคสนาม"
+          />
+        )}
         <div className="cs-quiz-list">
           {quiz.map((item, questionIndex) => {
             const isCorrect = answers[questionIndex] === item.answer;
@@ -896,17 +943,7 @@ export default function CoreSecurityLessonClient() {
           <button className="cs-primary" type="button" disabled={!answeredAll} onClick={() => setSubmitted(true)}>
             ตรวจคำตอบ
           </button>
-          <p><strong>{submitted ? score : "—"} / {quiz.length}</strong><span>{submitted ? (score >= 8 ? "เข้าใจเส้นทางและ Trust Boundary แล้ว" : "ทบทวนหัวข้อที่ยังสับสนอีกครั้ง") : "ตอบให้ครบก่อนตรวจ"}</span></p>
-          <button
-            className="cs-text-button"
-            type="button"
-            onClick={() => {
-              setAnswers(Array(quiz.length).fill(null));
-              setSubmitted(false);
-            }}
-          >
-            เริ่มใหม่
-          </button>
+          {!submitted && <p><strong>— / {quiz.length}</strong><span>ตอบให้ครบก่อนตรวจ</span></p>}
         </div>
       </section>
 

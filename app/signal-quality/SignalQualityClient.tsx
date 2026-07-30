@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
+import { BeginnerBridge, QuizSummary } from "../components/LearningSupport";
 
 type MetricKey = "RSRP" | "RSRQ" | "SINR";
 type ScenarioKey = "clean" | "interference" | "edge" | "blocked";
@@ -342,6 +343,7 @@ export default function SignalQualityClient() {
             <a href="#sq-metrics">ค่าที่วัด</a>
             <a href="#sq-beams">Beam &amp; MIMO</a>
             <a href="#sq-tools">เครื่องมือวัด</a>
+            <Link href="/field-guide">คู่มือภาคสนาม</Link>
             <a href="#sq-quiz">แบบทดสอบ</a>
           </nav>
           <button
@@ -386,6 +388,39 @@ export default function SignalQualityClient() {
           <p>ดูครบ 3 มุมก่อนสรุป</p>
         </div>
       </section>
+
+      <BeginnerBridge
+        lesson="signal"
+        tldr={[
+          "RSRP บอกว่าคลื่นอ้างอิงมาถึงแรงเท่าไร แต่ยังไม่บอกว่าช่องสัญญาณสะอาดหรือมีคนใช้แน่นแค่ไหน",
+          "RSRQ ช่วยมองคุณภาพรวมเมื่อเทียบ Reference Signal กับพลังงานในช่อง ส่วน SINR เปรียบเทียบสัญญาณที่ต้องการกับ Interference และ Noise",
+          "Scanner เหมาะกับการเห็น RF หลายเครือข่ายแบบ Passive ส่วนโทรศัพท์เหมาะกับการตาม Signalling และประสบการณ์บริการของ SIM ที่ใช้งานจริง",
+        ]}
+        analogy={{
+          title: "ความดังกับความชัดเป็นคนละเรื่อง",
+          body: "RSRP เหมือนความดังของคนที่ตะโกนหาเรา ส่วน SINR เหมือนความชัดของเสียงนั้นเมื่อเทียบกับเสียงคนรอบข้าง แม้เขาตะโกนดัง แต่ถ้าทั้งสนามตะโกนพร้อมกัน เราก็อาจฟังไม่รู้เรื่อง",
+        }}
+        scenario={{
+          title: "ทำไมคอนเสิร์ตขึ้น 5G เต็มขีด แต่เน็ตไม่วิ่ง?",
+          body: "ขีดสัญญาณสะท้อนความแรงมากกว่าความจุ เมื่อคนจำนวนมากแย่ง Resource Blocks และ Cell มีโหลดสูง RSRP อาจยังดี แต่ SINR, Scheduler Share หรือเส้นทางหลังสถานีฐานกลายเป็นคอขวดได้",
+        }}
+        technicalNotes={[
+          {
+            title: "เกณฑ์สีเป็นแนวทาง ไม่ใช่ Pass/Fail ของ 3GPP",
+            body: "ช่วงค่า RSRP/RSRQ/SINR ที่ใช้ในงานภาคสนามขึ้นกับ Band, Bandwidth, Vendor, Measurement Type, โหลด และ KPI ของโครงการ จึงต้องระบุเงื่อนไขก่อนใช้ตัดสิน ดูตารางช่วงค่าแบบใช้งานเร็วได้ในคู่มือภาคสนาม",
+          },
+          {
+            title: "ดูค่าเป็นชุดและดูแนวโน้ม",
+            body: "จุดวัดเดียวไม่อธิบาย Coverage ทั้งพื้นที่ ควรดู RSRP, RSRQ, SINR, Serving/Neighbor, Band, PCI/SSB Index และ Service KPI ตามตำแหน่งกับเวลาเดียวกัน",
+          },
+        ]}
+        terms={[
+          { term: "RSRP", engineering: "กำลังเฉลี่ยของ Reference Signal ที่รับได้", plain: "ความดังของเสียงจาก Cell ที่มาถึงมือถือ" },
+          { term: "SINR", engineering: "สัดส่วน Signal ต่อ Interference และ Noise", plain: "ความชัดของเสียงคุยเทียบกับเสียงรอบข้าง" },
+          { term: "PCI", engineering: "Physical Cell Identity ของ Radio Cell", plain: "ป้ายหมายเลขวิทยุของ Cell ไม่ใช่รหัสสถานีทั่วโลก" },
+          { term: "SSB Index", engineering: "ดัชนี SSB/Beam ที่ UE ตรวจพบ", plain: "หมายเลขทิศของลำสัญญาณนำทางภายใน Cell" },
+        ]}
+      />
 
       <section className="sq-roadmap" aria-labelledby="sq-roadmap-title">
         <p className="sq-section-index">แผนที่การเรียนรู้</p>
@@ -684,6 +719,18 @@ export default function SignalQualityClient() {
           <h2>แบบทดสอบท้ายบท</h2>
           <p>เลือกให้ครบทั้ง {quiz.length} ข้อ แล้วตรวจคำตอบพร้อมคำอธิบายได้ทันที</p>
         </div>
+        {submitted && (
+          <QuizSummary
+            score={score}
+            total={quiz.length}
+            onRetry={() => {
+              setAnswers({});
+              setSubmitted(false);
+            }}
+            nextHref="/mobility"
+            nextLabel="ไปบทที่ 05"
+          />
+        )}
         <div className="sq-quiz-list">
           {quiz.map((item, index) => {
             const selected = answers[index];
@@ -728,17 +775,6 @@ export default function SignalQualityClient() {
             onClick={() => setSubmitted(true)}
           >
             ตรวจคำตอบ
-          </button>
-          {submitted && <p className="sq-score"><strong>{score}/{quiz.length}</strong><span>คะแนน</span></p>}
-          <button
-            className="sq-reset"
-            type="button"
-            onClick={() => {
-              setAnswers({});
-              setSubmitted(false);
-            }}
-          >
-            เริ่มใหม่
           </button>
         </div>
       </section>

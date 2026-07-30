@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
+import { BeginnerBridge, QuizSummary } from "../components/LearningSupport";
 
 type Domain = "time" | "frequency";
 type Modulation = "ASK" | "FSK" | "PSK";
@@ -378,6 +379,7 @@ export default function RfLessonClient() {
             <a href="#domain">มองสัญญาณ</a>
             <a href="#modulation">Modulation</a>
             <a href="#resources">แบ่งคลื่น</a>
+            <Link href="/field-guide">คู่มือภาคสนาม</Link>
             <a href="#rf-quiz">แบบทดสอบ</a>
           </nav>
           <button
@@ -427,6 +429,39 @@ export default function RfLessonClient() {
           <p><b>Signal</b><span>→ Carrier → Symbol → Resource</span></p>
         </div>
       </section>
+
+      <BeginnerBridge
+        lesson="rf"
+        tldr={[
+          "คลื่นพาห์คือพาหนะที่นำข้อมูลเดินทางผ่านอากาศ ส่วน Modulation คือวิธีเปลี่ยนคลื่นให้แทนบิต 0 และ 1",
+          "จุดใน Constellation ยิ่งมาก ยิ่งส่งบิตต่อ Symbol ได้มาก แต่ต้องอาศัยสัญญาณสะอาดและการแยกจุดที่แม่นขึ้น",
+          "OFDM ซอยถนนความถี่เป็น Subcarrier จำนวนมาก แล้ว Scheduler จัดเวลาและความถี่ให้ผู้ใช้แต่ละเครื่อง",
+        ]}
+        analogy={{
+          title: "รถบรรทุกเล็กกับรถพ่วงใหญ่",
+          body: "BPSK/QPSK เหมือนรถคันเล็ก บรรทุกต่อเที่ยวไม่มากแต่ทนถนนขรุขระ ส่วน 64-QAM/256-QAM เหมือนรถพ่วงที่ขนได้มากแต่ต้องการถนนเรียบ เมื่อสัญญาณแย่เครือข่ายจึงลด Modulation ลงเพื่อให้ส่งถึงปลายทาง",
+        }}
+        scenario={{
+          title: "ทำไมความเร็วเปลี่ยนทั้งที่ยืนจุดเดิม?",
+          body: "แม้ RSRP ใกล้เคียงเดิม แต่ Interference และโหลดอาจเปลี่ยนทุกวินาที เครือข่ายจึงปรับ Modulation and Coding Scheme ให้เหมาะกับสภาพช่องสัญญาณ ทำให้ความเร็วขึ้นลงได้",
+        }}
+        technicalNotes={[
+          {
+            title: "LTE Uplink กับ 5G NR Uplink",
+            body: "LTE Uplink ใช้ DFT-s-OFDM ซึ่งมักเรียก SC-FDMA เพื่อลด PAPR ส่วน NR Uplink รองรับทั้ง CP-OFDM และ DFT-s-OFDM สำหรับ PUSCH ตามการกำหนดและความสามารถของ UE จึงไม่ควรสรุปว่า 5G Uplink ใช้ SC-FDMA เสมอ",
+          },
+          {
+            title: "PAPR เกี่ยวกับแบตเตอรี่",
+            body: "Peak-to-Average Power Ratio สูงทำให้ Power Amplifier ต้องเผื่อ Headroom มากขึ้น การลด PAPR ช่วยให้ภาคส่งของมือถือทำงานมีประสิทธิภาพขึ้น โดยเฉพาะ Uplink",
+          },
+        ]}
+        terms={[
+          { term: "Carrier", engineering: "คลื่นพาห์วิทยุสำหรับวางข้อมูล", plain: "ถนนหลักที่ใช้ขนข้อมูล" },
+          { term: "Subcarrier", engineering: "คลื่นพาห์ย่อยที่วางแบบ Orthogonal ใน OFDM", plain: "เลนย่อยจำนวนมากบนถนนความถี่" },
+          { term: "QAM", engineering: "Modulation ที่ใช้ทั้ง Amplitude และ Phase", plain: "รูปแบบจัดกล่องข้อมูลลงรถหนึ่งเที่ยว" },
+          { term: "PAPR", engineering: "อัตราส่วนกำลังยอดสูงสุดต่อกำลังเฉลี่ย", plain: "ช่วงเร่งกำลังสูงสุดเทียบกับกำลังที่ใช้โดยเฉลี่ย" },
+        ]}
+      />
 
       <section className="rf-outcomes" aria-labelledby="rf-outcome-title">
         <p className="rf-section-index">แผนที่การเรียนรู้</p>
@@ -796,6 +831,19 @@ export default function RfLessonClient() {
           <p>เลือกให้ครบทั้ง 6 ข้อ แล้วตรวจคำตอบพร้อมคำอธิบายได้ทันที</p>
         </div>
 
+        {submitted && (
+          <QuizSummary
+            score={score}
+            total={quiz.length}
+            onRetry={() => {
+              setAnswers({});
+              setSubmitted(false);
+            }}
+            nextHref="/5g-nr"
+            nextLabel="ไปบทที่ 03"
+          />
+        )}
+
         <div className="rf-quiz-list">
           {quiz.map((item, index) => {
             const isCorrect = answers[index] === item.answer;
@@ -840,21 +888,6 @@ export default function RfLessonClient() {
           >
             ตรวจคำตอบ
           </button>
-          {submitted && (
-            <>
-              <p aria-live="polite">ได้ <b>{score}/{quiz.length}</b> คะแนน</p>
-              <button
-                className="rf-reset"
-                type="button"
-                onClick={() => {
-                  setAnswers({});
-                  setSubmitted(false);
-                }}
-              >
-                ทำแบบทดสอบใหม่
-              </button>
-            </>
-          )}
         </div>
       </section>
 
@@ -868,6 +901,7 @@ export default function RfLessonClient() {
           <li><a href="https://www.keysight.com/us/en/assets/7018-06742/application-notes/5954-9130.pdf" target="_blank" rel="noreferrer">Keysight: Digital Modulation Basics</a></li>
           <li><a href="https://helpfiles.keysight.com/csg/89600B/Webhelp/Subsystems/wlan-ofdm/content/ofdm_basicprinciplesoverview.htm" target="_blank" rel="noreferrer">Keysight: OFDM Basic Principles</a></li>
           <li><a href="https://www.etsi.org/deliver/etsi_tr/102900_102999/102962/01.01.01_60/tr_102962v010101p.pdf" target="_blank" rel="noreferrer">ETSI: LTE Overview</a></li>
+          <li><a href="https://www.etsi.org/deliver/etsi_ts/138300_138399/138300/18.05.00_60/ts_138300v180500p.pdf" target="_blank" rel="noreferrer">3GPP TS 38.300: NR Uplink Waveform และ Bandwidth Adaptation</a></li>
           <li><a href="https://www.3gpp.org/technologies/nr-dynamic-spectrum-sharing-in-rel-17" target="_blank" rel="noreferrer">3GPP: NR Dynamic Spectrum Sharing</a></li>
         </ul>
       </section>

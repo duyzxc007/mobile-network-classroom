@@ -49,13 +49,15 @@ test("server-renders the separate RF and modulation lesson", async () => {
   assert.match(html, /Constellation/);
   assert.match(html, /Dynamic Spectrum Sharing/);
   assert.match(html, /OFDM, OFDMA, SC-FDMA/);
+  assert.match(html, /หยุดภาพ/);
   assert.match(html, /แบบทดสอบท้ายบท/);
 });
 
 test("removes temporary starter UI and preserves product context", async () => {
-  const [page, rfPage, layout, product, css] = await Promise.all([
+  const [page, rfPage, rfCss, layout, product, css] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/rf-modulation/RfLessonClient.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/rf-modulation/rf-modulation.css", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../PRODUCT.md", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
@@ -66,6 +68,9 @@ test("removes temporary starter UI and preserves product context", async () => {
   assert.match(page, /แบบทดสอบ/);
   assert.match(rfPage, /SC-FDMA/);
   assert.match(rfPage, /Dynamic Spectrum Sharing/);
+  assert.match(rfPage, /prefers-reduced-motion/);
+  assert.match(rfCss, /@keyframes rf-carrier-scan/);
+  assert.match(rfCss, /rf-motion-paused/);
   assert.match(css, /prefers-reduced-motion/);
   assert.match(layout, /lang="th"/);
   assert.match(product, /บุคคลทั่วไปและช่างเทคนิค/);

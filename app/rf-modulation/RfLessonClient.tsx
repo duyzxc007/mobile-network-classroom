@@ -1,12 +1,27 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 
 type Domain = "time" | "frequency";
 type Modulation = "ASK" | "FSK" | "PSK";
 type Constellation = "BPSK" | "QPSK" | "16-QAM" | "64-QAM";
 type AccessMode = "OFDM" | "OFDMA" | "SC-FDMA";
+
+function subscribeToReducedMotion(onChange: () => void) {
+  const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mediaQuery.addEventListener("change", onChange);
+  return () => mediaQuery.removeEventListener("change", onChange);
+}
+
+function getReducedMotionPreference() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getServerReducedMotionPreference() {
+  return false;
+}
 
 const modulationNotes: Record<
   Modulation,
@@ -144,7 +159,13 @@ function ResourceGrid({ mode }: { mode: AccessMode }) {
       owner = row < 2 ? "user-a" : row < 4 ? "user-b" : "user-c";
     }
 
-    return <i key={index} className={owner} />;
+    return (
+      <i
+        key={index}
+        className={owner}
+        style={{ "--cell": index } as CSSProperties}
+      />
+    );
   });
 
   return (
@@ -159,8 +180,15 @@ export default function RfLessonClient() {
   const [modulation, setModulation] = useState<Modulation>("PSK");
   const [constellation, setConstellation] = useState<Constellation>("QPSK");
   const [accessMode, setAccessMode] = useState<AccessMode>("OFDMA");
+  const [motionEnabled, setMotionEnabled] = useState(true);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
+  const prefersReducedMotion = useSyncExternalStore(
+    subscribeToReducedMotion,
+    getReducedMotionPreference,
+    getServerReducedMotionPreference,
+  );
+  const isMotionPlaying = motionEnabled && !prefersReducedMotion;
 
   const score = useMemo(
     () => quiz.reduce(
@@ -175,7 +203,7 @@ export default function RfLessonClient() {
   const points = constellationPoints(constellation);
 
   return (
-    <main className="rf-page">
+    <main className={`rf-page${isMotionPlaying ? "" : " rf-motion-paused"}`}>
       <header className="rf-header">
         <Link className="rf-brand" href="/">
           <span aria-hidden="true">RF</span>
@@ -184,12 +212,28 @@ export default function RfLessonClient() {
             <small>บทเรียนที่ 02</small>
           </span>
         </Link>
-        <nav aria-label="หัวข้อในบทเรียน RF">
-          <a href="#domain">มองสัญญาณ</a>
-          <a href="#modulation">Modulation</a>
-          <a href="#resources">แบ่งคลื่น</a>
-          <a href="#rf-quiz">แบบทดสอบ</a>
-        </nav>
+        <div className="rf-header-actions">
+          <nav aria-label="หัวข้อในบทเรียน RF">
+            <a href="#domain">มองสัญญาณ</a>
+            <a href="#modulation">Modulation</a>
+            <a href="#resources">แบ่งคลื่น</a>
+            <a href="#rf-quiz">แบบทดสอบ</a>
+          </nav>
+          <button
+            className="rf-motion-toggle"
+            type="button"
+            aria-pressed={!isMotionPlaying}
+            disabled={prefersReducedMotion}
+            onClick={() => setMotionEnabled((enabled) => !enabled)}
+          >
+            <span aria-hidden="true">{isMotionPlaying ? "Ⅱ" : "▶"}</span>
+            {prefersReducedMotion
+              ? "ระบบหยุดภาพ"
+              : isMotionPlaying
+                ? "หยุดภาพ"
+                : "เล่นภาพ"}
+          </button>
+        </div>
       </header>
 
       <section className="rf-hero" id="rf-top">
@@ -210,7 +254,9 @@ export default function RfLessonClient() {
           <div className="rf-scope">
             <span className="rf-scope-label">TIME</span>
             <div className="rf-wave" aria-hidden="true">
-              {Array.from({ length: 18 }, (_, index) => <i key={index} />)}
+              {Array.from({ length: 18 }, (_, index) => (
+                <i key={index} style={{ "--i": index } as CSSProperties} />
+              ))}
             </div>
           </div>
           <span className="rf-process-arrow" aria-hidden="true">→</span>
@@ -260,9 +306,14 @@ export default function RfLessonClient() {
               <span className="rf-y-label">{domain === "time" ? "Amplitude" : "Power"}</span>
               <div className="rf-chart-content" aria-hidden="true">
                 {domain === "time"
-                  ? Array.from({ length: 26 }, (_, index) => <i key={index} />)
+                  ? Array.from({ length: 26 }, (_, index) => (
+                    <i key={index} style={{ "--i": index } as CSSProperties} />
+                  ))
                   : [22, 42, 92, 50, 30, 68, 26].map((height, index) => (
-                    <i key={index} style={{ height: `${height}%` }} />
+                    <i
+                      key={index}
+                      style={{ height: `${height}%`, "--i": index } as CSSProperties}
+                    />
                   ))}
               </div>
               <span className="rf-x-label">{domain === "time" ? "เวลา →" : "ความถี่ →"}</span>
@@ -307,7 +358,9 @@ export default function RfLessonClient() {
             <span>1</span><span>0</span><span>1</span><span>1</span><span>0</span><span>1</span>
           </div>
           <div className={`rf-modulated-wave ${modulation.toLowerCase()}`} aria-hidden="true">
-            {Array.from({ length: 36 }, (_, index) => <i key={index} />)}
+            {Array.from({ length: 36 }, (_, index) => (
+              <i key={index} style={{ "--i": index } as CSSProperties} />
+            ))}
           </div>
           <div className="rf-mode-selector" role="tablist" aria-label="เลือก Digital Modulation">
             {(["ASK", "FSK", "PSK"] as Modulation[]).map((mode) => (
@@ -353,7 +406,11 @@ export default function RfLessonClient() {
             {points.map(([x, y], index) => (
               <i
                 key={`${constellation}-${index}`}
-                style={{ left: `${x}%`, top: `${y}%` }}
+                style={{
+                  left: `${x}%`,
+                  top: `${y}%`,
+                  "--point": index,
+                } as CSSProperties}
               />
             ))}
           </div>
@@ -385,13 +442,13 @@ export default function RfLessonClient() {
 
         <div className="rf-noise-story">
           <div>
-            <span className="rf-clean-point" aria-hidden="true" />
+              <span className="rf-clean-point" aria-hidden="true"><i /></span>
             <b>สัญญาณสะอาด</b>
             <p>จุดที่วัดได้เกาะใกล้ตำแหน่งอ้างอิง</p>
           </div>
           <span aria-hidden="true">→</span>
           <div>
-            <span className="rf-noisy-point" aria-hidden="true" />
+              <span className="rf-noisy-point" aria-hidden="true"><i /><i /><i /></span>
             <b>มี Noise หรือ Distortion</b>
             <p>จุดกระจายกว้างขึ้น EVM สูง และตัดสิน Symbol ผิดง่าย</p>
           </div>
@@ -458,7 +515,9 @@ export default function RfLessonClient() {
         </div>
 
         <div className="rf-orthogonal-demo" aria-label="ภาพแนวคิด Subcarrier แบบ Orthogonal">
-          {Array.from({ length: 9 }, (_, index) => <i key={index} />)}
+          {Array.from({ length: 9 }, (_, index) => (
+            <i key={index} style={{ "--i": index } as CSSProperties} />
+          ))}
           <span>ความถี่ →</span>
         </div>
 
@@ -525,6 +584,7 @@ export default function RfLessonClient() {
               <i
                 key={index}
                 className={(index % 7 === 2 || index % 11 === 0) ? "nr" : "lte"}
+                style={{ "--cell": index } as CSSProperties}
               />
             ))}
           </div>

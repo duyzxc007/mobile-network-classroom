@@ -66,6 +66,7 @@ test("server-renders the preserved network evolution lesson", async () => {
   assert.match(html, /พื้นฐานเครือข่ายมือถือ 1G ถึง 5G/);
   assert.match(html, /GSM กับ CDMA/);
   assert.match(html, /3GPP เขียนสเปก/);
+  assert.match(html, /หนึ่งทรัพยากร แบ่งผู้ใช้ได้หลายวิธี/);
   assert.match(html, /แบบทดสอบท้ายบท/);
   assert.match(html, /กลับหน้ารวมบทเรียน/);
 });
@@ -80,6 +81,7 @@ test("server-renders the separate RF and modulation lesson", async () => {
   assert.match(html, /Constellation/);
   assert.match(html, /Dynamic Spectrum Sharing/);
   assert.match(html, /OFDM, OFDMA, SC-FDMA/);
+  assert.match(html, /บิตถูก Map ไปยังจุดใน Constellation/);
   assert.match(html, /หยุดภาพ/);
   assert.match(html, /แบบทดสอบท้ายบท/);
 });
@@ -97,6 +99,7 @@ test("server-renders the separate 5G NR structure lesson", async () => {
   assert.match(html, /Bandwidth Part/);
   assert.match(html, /PSS \+ SSS \+ PBCH/);
   assert.match(html, /PDCCH → PDSCH/);
+  assert.match(html, /Scheduler วางข้อมูลบนเวลา × ความถี่/);
   assert.match(html, /หยุดภาพ/);
   assert.match(html, /แบบทดสอบท้ายบท/);
 });
@@ -116,6 +119,7 @@ test("server-renders the separate signal quality and field measurement lesson", 
   assert.match(html, /PCI = 0 ถึง 1007/);
   assert.match(html, /Network Scanner/);
   assert.match(html, /Test Phone/);
+  assert.match(html, /สัญญาณแรงคงเดิม แต่ SINR ลดได้/);
   assert.match(html, /หยุดภาพ/);
   assert.match(html, /แบบทดสอบท้ายบท/);
 });
@@ -136,6 +140,7 @@ test("server-renders the connection and mobility lesson", async () => {
   assert.match(html, /NSA \/ SA Reality/);
   assert.match(html, /Scanner/);
   assert.match(html, /Test Phone/);
+  assert.match(html, /วัดก่อน รายงานก่อน แล้วจึง Handover/);
   assert.match(html, /หยุดภาพ/);
   assert.match(html, /แบบทดสอบท้ายบท/);
 });
@@ -158,6 +163,7 @@ test("server-renders the 5G core, slicing, and security lesson", async () => {
   assert.match(html, /SUPI/);
   assert.match(html, /SUCI/);
   assert.match(html, /False Base Station Awareness/);
+  assert.match(html, /Control ตัดสินใจ ส่วน User Plane ขน Packet/);
   assert.match(html, /หยุดภาพ/);
   assert.match(html, /แบบทดสอบท้ายบท/);
 });
@@ -246,12 +252,17 @@ test("removes temporary starter UI and preserves product context", async () => {
   assert.match(csCss, /cs-motion-paused/);
   assert.match(csCss, /\.cs-header\s*\{[\s\S]*position:\s*sticky/);
   assert.match(supportPage, /สรุปใน 3 บรรทัด/);
+  assert.match(supportPage, /ANIMATED CONCEPT/);
+  assert.match(supportPage, /motion-qpsk-model/);
+  assert.match(supportPage, /Mapping Convention/);
   assert.match(supportPage, /quiz-summary-box/);
   assert.match(supportPage, /mobile-classroom-outdoor/);
   assert.match(fieldPage, /S.*rxlev/);
   assert.match(fieldPage, /Packet Delay Budget/);
   assert.match(fieldCss, /\.fg-header\s*\{[\s\S]*position:\s*sticky/);
   assert.match(css, /prefers-reduced-motion/);
+  assert.match(css, /concept-motion-paused/);
+  assert.match(css, /left:\s*calc\(100% - 18px\)/);
   assert.match(layout, /lang="th"/);
   assert.match(product, /บุคคลทั่วไปและช่างเทคนิค/);
 });

@@ -162,6 +162,12 @@ export default function Home() {
 
       <section className="hub-hero" id="hub-top">
         <div className="hub-hero-copy">
+          <div style={{ marginBottom: "14px" }}>
+            <span className="glow-badge">
+              <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--good)", display: "inline-block", boxShadow: "0 0 8px var(--good)" }}></span>
+              ภาพเคลื่อนไหวเชิงแนวคิด · ตรวจทานกับกรอบ 3GPP / ITU
+            </span>
+          </div>
           <p className="hub-kicker">เรียนรู้จากภาพใหญ่ ไปจนถึงการวัดจริง</p>
           <h1>เข้าใจเครือข่ายมือถือ<br />อย่างเป็นระบบ</h1>
           <p>

@@ -517,6 +517,13 @@
   border: 1px solid var(--hub-line);
   border-radius: 28px;
   background: var(--hub-paper-strong);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.35s ease;
+}
+
+.hub-lesson:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 28px 70px oklch(0.23 0.045 255 / 0.16);
+  border-color: var(--hub-blue);
 }
 
 .hub-lesson-01 {

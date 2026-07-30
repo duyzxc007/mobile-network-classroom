@@ -141,6 +141,208 @@ const glossary = [
   ["SA", "5G แบบ Standalone ใช้ 5G NR และ 5G Core เต็มรูปแบบ"],
 ];
 
+function GenerationInteractiveDiagram({ genId }: { genId: number }) {
+  const configs: Record<number, { title: string; badge: string; desc: string }> = {
+    1: {
+      title: "1G Analog Architecture",
+      badge: "คลื่นเสียงแอนะล็อกต่อเนื่อง (AMPS / NMT)",
+      desc: "เสียงถูกมอดูเลตแบบแอนะล็อกบนคลื่นวิทยุและแบ่งช่องด้วย FDMA ระบบยุคนั้นไม่มีการปกป้องแบบเครือข่ายดิจิทัลสมัยใหม่ จึงเสี่ยงต่อการดักฟัง",
+    },
+    2: {
+      title: "2G Digital Architecture (GSM / cdmaOne)",
+      badge: "เสียงและ Signalling แบบดิจิทัล",
+      desc: "GSM ใช้ TDMA และ SIM ขณะที่ cdmaOne ใช้ Code Division และอาจจัดการตัวตนต่างกัน ทั้งสองตระกูลรองรับเสียงแบบ Circuit-Switched และบริการข้อความ/ข้อมูลตามระบบของตน",
+    },
+    3: {
+      title: "3G IMT-2000 Architecture",
+      badge: "อินเทอร์เน็ตบนมือถือ + WCDMA / HSPA",
+      desc: "ผสานเครือข่ายโทรศัพท์ (Circuit-Switched) กับเครือข่ายอินเทอร์เน็ต (Packet-Switched) เพื่อเปิดเว็บและวิดีโอ",
+    },
+    4: {
+      title: "4G All-IP Broadband Architecture",
+      badge: "All-IP Packet Core (EPC) + OFDMA / MIMO",
+      desc: "เครือข่ายส่งข้อมูลแบบ IP ทั้งหมด (VoLTE) ใช้เทคนิค OFDMA และเสาหลายแกน (MIMO) รองรับสตรีมมิงความเร็วสูง",
+    },
+    5: {
+      title: "5G NR และ 5G Core แบบ Service-Based",
+      badge: "5G SA: 5G NR + 5G Core",
+      desc: "5G System รองรับความสามารถอย่าง eMBB, URLLC และ Massive IoT; Network Slice เป็นการแบ่งเชิงตรรกะตามบริการและอาจใช้โครงสร้างกายภาพร่วมกัน",
+    },
+  };
+
+  const currentConfig = configs[genId] ?? configs[5];
+
+  return (
+    <div className="gen-interactive-diagram" style={{
+      margin: "24px 0",
+      padding: "24px",
+      borderRadius: "20px",
+      background: "var(--paper-strong)",
+      border: "1px solid var(--line)",
+      position: "relative",
+      overflow: "hidden"
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", flexWrap: "wrap", gap: "12px" }}>
+        <div>
+          <span className="glow-badge" style={{ fontSize: "0.75rem", marginBottom: "6px", display: "inline-block" }}>
+            <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--good)", display: "inline-block", marginRight: "6px" }}></span>
+            {currentConfig.badge}
+          </span>
+          <h4 style={{ margin: "4px 0 0", fontSize: "1.15rem", color: "var(--ink)" }}>{currentConfig.title}</h4>
+        </div>
+        <span style={{ fontSize: "0.8rem", color: "var(--blue)", fontWeight: 700 }}>
+          แบบจำลองเพื่อการสอน อ้างอิงกรอบ 3GPP / ITU
+        </span>
+      </div>
+
+      <p style={{ fontSize: "0.95rem", color: "var(--ink-soft)", margin: "0 0 20px" }}>
+        {currentConfig.desc}
+      </p>
+
+      {/* Visual Animation Stage */}
+      <div className="gen-diagram-stage" style={{
+        minHeight: "140px",
+        borderRadius: "16px",
+        background: "var(--paper)",
+        border: "1px solid var(--line)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-around",
+        padding: "20px",
+        position: "relative"
+      }}>
+        {genId === 1 && (
+          <div className="demo-1g" style={{ display: "flex", alignItems: "center", gap: "24px", width: "100%", justifyContent: "center" }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "var(--blue-soft)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontWeight: 800 }}>UE</div>
+              <small style={{ fontSize: "0.75rem", color: "var(--ink-soft)" }}>มือถือแอนะล็อก</small>
+            </div>
+            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+              {Array.from({ length: 9 }).map((_, i) => (
+                <span key={i} style={{
+                  width: "6px",
+                  height: `${20 + ((i % 3) * 15)}px`,
+                  background: "var(--accent-strong)",
+                  borderRadius: "4px",
+                  animation: "pulse-ring-glow 1.8s ease-in-out infinite",
+                  animationDelay: `${i * 0.15}s`
+                }} />
+              ))}
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ width: "54px", height: "54px", borderRadius: "12px", background: "var(--ink)", color: "var(--paper)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontWeight: 800 }}>BS</div>
+              <small style={{ fontSize: "0.75rem", color: "var(--ink-soft)" }}>สถานีฐาน (FDMA)</small>
+            </div>
+          </div>
+        )}
+
+        {genId === 2 && (
+          <div className="demo-2g" style={{ display: "flex", alignItems: "center", gap: "20px", width: "100%", justifyContent: "center", flexWrap: "wrap" }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "var(--blue-soft)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontWeight: 800 }}>ID</div>
+              <small style={{ fontSize: "0.75rem", color: "var(--ink-soft)" }}>SIM ใน GSM · วิธีอื่นใน cdmaOne</small>
+            </div>
+            <div style={{ flex: 1, display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
+              {["Slot A", "Slot B", "Slot C", "SMS #1"].map((label, idx) => (
+                <div key={idx} style={{
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  background: idx === 3 ? "var(--good)" : "var(--ink)",
+                  color: idx === 3 ? "var(--ink)" : "var(--paper)",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  animation: "pulse-ring-glow 2.5s ease-in-out infinite",
+                  animationDelay: `${idx * 0.4}s`
+                }}>
+                  {label}
+                </div>
+              ))}
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ width: "54px", height: "54px", borderRadius: "12px", background: "var(--ink)", color: "var(--paper)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontWeight: 800 }}>MSC</div>
+              <small style={{ fontSize: "0.75rem", color: "var(--ink-soft)" }}>เครือข่ายสลับสาย</small>
+            </div>
+          </div>
+        )}
+
+        {genId === 3 && (
+          <div className="demo-3g" style={{ display: "flex", alignItems: "center", gap: "20px", width: "100%", justifyContent: "center", flexWrap: "wrap" }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "var(--blue-soft)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontWeight: 800 }}>3G</div>
+              <small style={{ fontSize: "0.75rem", color: "var(--ink-soft)" }}>มือถือ + เน็ต</small>
+            </div>
+            <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+              <div style={{ padding: "8px", borderRadius: "8px", background: "var(--paper-strong)", textAlign: "center", fontSize: "0.75rem", fontWeight: 700, border: "1px solid var(--line)" }}>
+                CS Domain (เสียงคอล)
+              </div>
+              <div style={{ padding: "8px", borderRadius: "8px", background: "var(--blue)", color: "var(--paper)", textAlign: "center", fontSize: "0.75rem", fontWeight: 700, animation: "pulse-ring-glow 2.2s ease-in-out infinite" }}>
+                PS Domain (เว็บ / อีเมล)
+              </div>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ width: "54px", height: "54px", borderRadius: "12px", background: "var(--ink)", color: "var(--paper)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontWeight: 800 }}>RNC</div>
+              <small style={{ fontSize: "0.75rem", color: "var(--ink-soft)" }}>WCDMA Radio</small>
+            </div>
+          </div>
+        )}
+
+        {genId === 4 && (
+          <div className="demo-4g" style={{ display: "flex", alignItems: "center", gap: "20px", width: "100%", justifyContent: "center", flexWrap: "wrap" }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "var(--blue-soft)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", fontWeight: 800 }}>LTE</div>
+              <small style={{ fontSize: "0.75rem", color: "var(--ink-soft)" }}>VoLTE / HD Streaming</small>
+            </div>
+            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", flexWrap: "wrap" }}>
+              {["OFDMA Downlink", "All-IP Core (EPC)", "MIMO / Beamforming"].map((tag, idx) => (
+                <span key={idx} style={{
+                  padding: "8px 12px",
+                  borderRadius: "99px",
+                  background: "var(--ink)",
+                  color: "var(--paper)",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  animation: "pulse-ring-glow 3s ease-in-out infinite",
+                  animationDelay: `${idx * 0.5}s`
+                }}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {genId === 5 && (
+          <div className="demo-5g" style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
+            <div className="gen-slice-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+              {[
+                { title: "eMBB", desc: "Mobile Broadband ความจุสูง", bg: "var(--blue-soft)", color: "var(--blue)" },
+                { title: "URLLC", desc: "งานที่ออกแบบเพื่อความหน่วงต่ำและความเชื่อถือสูง", bg: "oklch(0.93 0.06 88)", color: "var(--accent-strong)" },
+                { title: "Massive IoT", desc: "อุปกรณ์จำนวนมากและประหยัดพลังงาน", bg: "var(--paper-strong)", color: "var(--ink)" },
+              ].map((slice, idx) => (
+                <div key={idx} style={{
+                  padding: "12px",
+                  borderRadius: "12px",
+                  background: slice.bg,
+                  textAlign: "center",
+                  border: "1px solid var(--line)",
+                  animation: "pulse-ring-glow 2.8s ease-in-out infinite",
+                  animationDelay: `${idx * 0.6}s`
+                }}>
+                  <strong style={{ display: "block", color: slice.color, fontSize: "0.95rem" }}>{slice.title}</strong>
+                  <small style={{ fontSize: "0.72rem", color: "var(--ink-soft)" }}>{slice.desc}</small>
+                </div>
+              ))}
+            </div>
+            <div style={{ textAlign: "center", fontSize: "0.78rem", fontWeight: 700, color: "var(--ink-soft)", marginTop: "4px" }}>
+              ★ Slice เป็นเครือข่ายเชิงตรรกะและอาจใช้ RAN, Transport หรือ Core Platform ร่วมกัน ไม่ใช่วงจรกายภาพแยกเสมอ
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function NetworkEvolutionClient() {
   const [activeGeneration, setActiveGeneration] = useState(5);
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -312,6 +514,7 @@ export default function NetworkEvolutionClient() {
               <strong>{current.promise}</strong>
             </div>
           </div>
+          <GenerationInteractiveDiagram genId={current.id} />
           <dl>
             <div>
               <dt>Radio Access</dt>

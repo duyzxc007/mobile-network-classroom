@@ -1,5 +1,6 @@
 import Link from "next/link";
 import "./home.css";
+import { SpectrumSandbox, InteractivePocketReference } from "./components/InteractiveFeatures";
 
 const lessons = [
   {
@@ -258,6 +259,10 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="hub-sandbox-section" aria-label="เครื่องมือเปรียบเทียบคุณสมบัติย่านความถี่ 5G">
+        <SpectrumSandbox />
+      </section>
+
       <section className="hub-path" id="hub-path">
         <div className="hub-path-copy">
           <p className="hub-section-index">ลำดับที่แนะนำ</p>
@@ -301,11 +306,7 @@ export default function Home() {
             ค่า 5QI ตัวอย่าง และลำดับตรวจปัญหา Scanner เทียบกับโทรศัพท์
           </p>
         </div>
-        <div className="hub-pocket-cards" aria-hidden="true">
-          <span><b>RSRP</b><small>−80 / −100 / −110</small></span>
-          <span><b>PCI</b><small>0–1007</small></span>
-          <span><b>5QI</b><small>QoS Map</small></span>
-        </div>
+        <InteractivePocketReference />
         <Link className="hub-primary" href="/field-guide">เปิดคู่มือภาคสนาม <span aria-hidden="true">→</span></Link>
       </section>
 

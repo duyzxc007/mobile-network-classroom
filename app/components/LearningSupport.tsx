@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 type PlainTerm = {
   term: string;
@@ -324,6 +324,32 @@ export function QuizSummary({
   );
 }
 
+export function ReadingProgress() {
+  const indicatorRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    function updateProgress() {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0;
+      indicatorRef.current?.style.setProperty("--reading-progress", String(progress));
+    }
+
+    updateProgress();
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress);
+    return () => {
+      window.removeEventListener("scroll", updateProgress);
+      window.removeEventListener("resize", updateProgress);
+    };
+  }, []);
+
+  return (
+    <div className="reading-progress" aria-hidden="true">
+      <span ref={indicatorRef} />
+    </div>
+  );
+}
+
 export function OutdoorModeToggle() {
   const enabled = useSyncExternalStore(
     (onChange) => {
@@ -338,9 +364,23 @@ export function OutdoorModeToggle() {
     () => false,
   );
 
+  const largeText = useSyncExternalStore(
+    (onChange) => {
+      window.addEventListener("storage", onChange);
+      window.addEventListener("mobile-classroom-reading-change", onChange);
+      return () => {
+        window.removeEventListener("storage", onChange);
+        window.removeEventListener("mobile-classroom-reading-change", onChange);
+      };
+    },
+    () => window.localStorage.getItem("mobile-classroom-reading") === "large",
+    () => false,
+  );
+
   useEffect(() => {
     document.documentElement.dataset.outdoor = String(enabled);
-  }, [enabled]);
+    document.documentElement.dataset.reading = largeText ? "large" : "comfortable";
+  }, [enabled, largeText]);
 
   function toggle() {
     const next = !enabled;
@@ -349,15 +389,37 @@ export function OutdoorModeToggle() {
     window.dispatchEvent(new Event("mobile-classroom-outdoor-change"));
   }
 
+  function toggleReadingSize() {
+    const next = largeText ? "comfortable" : "large";
+    document.documentElement.dataset.reading = next;
+    window.localStorage.setItem("mobile-classroom-reading", next);
+    window.dispatchEvent(new Event("mobile-classroom-reading-change"));
+  }
+
   return (
-    <button
-      className="outdoor-mode-toggle"
-      type="button"
-      aria-pressed={enabled}
-      onClick={toggle}
-    >
-      <span aria-hidden="true">{enabled ? "☀" : "◐"}</span>
-      {enabled ? "กลับโหมดปกติ" : "โหมดกลางแจ้ง"}
-    </button>
+    <div className="display-tools" role="group" aria-label="เครื่องมือช่วยอ่าน">
+      <button
+        className="reading-size-toggle"
+        type="button"
+        aria-pressed={largeText}
+        aria-label={largeText ? "กลับไปใช้ขนาดตัวอักษรปกติ" : "เพิ่มขนาดตัวอักษร"}
+        title={largeText ? "ขนาดตัวอักษรปกติ" : "ตัวอักษรใหญ่"}
+        onClick={toggleReadingSize}
+      >
+        <span className="display-tools-icon" aria-hidden="true">A</span>
+        <span className="display-tools-label">{largeText ? "ขนาดปกติ" : "ตัวอักษรใหญ่"}</span>
+      </button>
+      <button
+        className="outdoor-mode-toggle"
+        type="button"
+        aria-pressed={enabled}
+        aria-label={enabled ? "กลับไปใช้โหมดการแสดงผลปกติ" : "เปิดโหมดกลางแจ้ง"}
+        title={enabled ? "กลับโหมดปกติ" : "โหมดกลางแจ้ง"}
+        onClick={toggle}
+      >
+        <span className="display-tools-icon" aria-hidden="true">{enabled ? "☀" : "◐"}</span>
+        <span className="display-tools-label">{enabled ? "กลับโหมดปกติ" : "โหมดกลางแจ้ง"}</span>
+      </button>
+    </div>
   );
 }

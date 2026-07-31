@@ -1,6 +1,21 @@
 import type { Metadata } from "next";
-import { OutdoorModeToggle } from "./components/LearningSupport";
+import { Anuphan, Prompt } from "next/font/google";
+import { OutdoorModeToggle, ReadingProgress } from "./components/LearningSupport";
 import "./globals.css";
+
+const bodyFont = Anuphan({
+  subsets: ["thai", "latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+const headingFont = Prompt({
+  subsets: ["thai", "latin"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-heading",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://mobile-network-classroom-th-v2.duyinw.chatgpt.site"),
@@ -31,8 +46,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th">
+    <html lang="th" className={`${bodyFont.variable} ${headingFont.variable}`}>
       <body>
+        <ReadingProgress />
         {children}
         <OutdoorModeToggle />
       </body>
